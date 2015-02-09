@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>PicnVid</title>
+<meta charset="utf-8">
+
+<!--[if lt IE 9]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">
+</script>
+<![endif]-->
+
+<style>
+body {font-family: Verdana, sans-serif; font-size:0.8em;}
+header,nav, section,article,footer
+{border:1px solid grey; margin:5px; padding:8px;}
+nav ul {margin:0; padding:0;}
+nav ul li {display:inline; margin:5px;}
+</style>
+</head>
+
+<body id="b">
+<!--
+<header>
+  <h1>HTML5 SKeleton</h1>
+</header>
+
+<nav>
+<ul>
+  <li><a href="html5_semantic_elements.asp">HTML5 Semantic</a></li>
+  <li><a href="html5_geolocation.asp">HTML5 Geolocation</a></li>
+  <li><a href="html5_canvas.asp">HTML5 Graphics</a></li>
+</ul>
+</nav>
+
+<section>
+
+<h1>Famous Cities</h1>
+
+<article>
+<h2>London</h2>
+<p>London is the capital city of England. It is the most populous city in the United Kingdom,
+with a metropolitan area of over 13 million inhabitants.</p>
+</article>
+
+<article>
+<h2>Paris</h2>
+<p>Paris is the capital and most populous city of France.</p>
+</article>
+
+<article>
+<h2>Tokyo</h2>
+<p>Tokyo is the capital of Japan, the center of the Greater Tokyo Area,
+and the most populous metropolitan area in the world.</p>
+</article>
+
+</section>
+<footer style="width:80% ; margin: 20px auto">
+<p>&copy; 2015 YuPan. All rights reserved.</p>
+</footer>
+<canvas id="myCanvas" width="400" height="200"></canvas>-->
+
+
+<form>
+<input type="file" id="fileinput" name="picorvideo" accept="image/*, video/*"/>
+</form>
+
+<div id="imgarea" style="width:80% ; margin: 20px auto"/>
+
+<script>
+//var canvas = document.getElementById('myCanvas');
+
+//if (canvas.getContext) {
+  //  var ctx = canvas.getContext('2d');
+//}
+
+//var img = new Image();
+
+
+document.getElementById("fileinput").onchange = function(e){
+     if(!e.target.files[0])
+            return;
+      
+     readFile(e.target.files[0]);
+   
+     console.log(e.target.files[0].type);
+}
+
+function readFile(file){
+	     
+//  var reader = new FileReader();
+var imageType=/image.*/;
+var videoType=/video.*/;
+var imgorVideo;
+
+
+
+if(file.type.match(imageType)){
+  imgorVideo= document.createElement("img");
+  imgorVideo.onclick=function(){ this.style.display="none";};
+}
+else if(file.type.match(videoType)){
+  imgorVideo= document.createElement("video");
+  imgorVideo.ondblclick=function(){ this.style.display="none";};
+  imgorVideo.controls=true;
+  imgorVideo.isPlay=false;
+  imgorVideo.onclick=function(){ 
+  	 if(this.isPlay){
+  	 	this.pause(); 
+  	     this.isPlay=false;
+  	 }
+
+  	else{
+        this.play(); 
+  	     this.isPlay=true;
+  	}
+
+  	 };
+ imgorVideo.onplay=function(){this.isPlay=true};
+ imgorVideo.onpause=function(){this.isPlay=false};
+  	
+
+}
+
+    //    myVideo.src = window.URL.createObjectURL();
+      //}
+    //  myVideo.play();
+
+imgorVideo.src=window.URL.createObjectURL(file);
+//imgorVideo.onload = function(e) {
+   // window.URL.revokeObjectURL(this.src);
+    imgorVideo.height=300;
+    imgorVideo.width=500;
+    document.getElementById("imgarea").appendChild(imgorVideo);
+//}
+
+
+ // reader.onload = function(e){
+   // applyDataUrlToCanvas( reader.result );
+  //};
+
+  //reader.readAsDataURL(file);
+}
+/*
+function applyDataUrlToCanvas(result){
+	var img= document.createElement("img");
+
+	img.onload = function(e) {
+   // window.URL.revokeObjectURL(this.src);
+    img.height=300;
+    img.width=500;
+    document.getElementById("imgarea").appendChild(img);
+}
+    img.src = result;
+   
+    //ctx.drawImage(img, 0, 0); 
+   
+}*/
+</script>
+
+
+</body>
+</html>
