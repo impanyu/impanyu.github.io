@@ -73,7 +73,8 @@ and the most populous metropolitan area in the world.</p>
 
 
 <form>
-<input type="file" id="fileinput" class="btn btn-default btn-lg" style="width:100%" name="picorvideo" accept="image/*, video/*"/>
+<input type="file" id="fileinput" class="btn btn-primary btn-lg" style="width:100%" name="picorvideo" accept="image/*, video/*"/>
+<!-- Standard button -->
 </form>
 
 
@@ -107,9 +108,11 @@ function readFile(file){
 var imageType=/image.*/;
 var videoType=/video.*/;
 var imgorVideo;
-var container=document.createElement("fig");
+var container=document.createElement("div");
 
 container.style.position="relative";
+container.style.top=0;
+container.style.left=0;
 container.style.display="inline-block";
 document.getElementById("imgarea").appendChild(container);
 
