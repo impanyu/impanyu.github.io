@@ -73,7 +73,7 @@ and the most populous metropolitan area in the world.</p>
 
 
 <form>
-<input type="file" id="fileinput" name="picorvideo" accept="image/*, video/*"/>
+<input type="file" id="fileinput" class="btn btn-default btn-lg" name="picorvideo" accept="image/*, video/*"/>
 </form>
 
 <div id="imgarea" style="width:90% ; margin: 20px auto"></div>
@@ -192,6 +192,7 @@ if(file.type.match(imageType)){
         document.getElementById("blackcover").onclick=function(){
           this.style.display="none";
           this.parentNode.removeChild(zoompic);
+          //
         };
    };
   //imgorVideo.style.width="500px";
