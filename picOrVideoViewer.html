@@ -9,6 +9,18 @@
 </script>
 <![endif]-->
 
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
 <style>
 body {font-family: Verdana, sans-serif; font-size:0.8em;}
 header,nav, section,article,footer
@@ -18,7 +30,7 @@ nav ul li {display:inline; margin:5px;}
 </style>
 </head>
 
-<body id="b">
+<body id="b" >
 <!--
 <header>
   <h1>HTML5 SKeleton</h1>
@@ -64,7 +76,10 @@ and the most populous metropolitan area in the world.</p>
 <input type="file" id="fileinput" name="picorvideo" accept="image/*, video/*"/>
 </form>
 
-<div id="imgarea" style="width:80% ; margin: 20px auto"/>
+<div id="imgarea" style="width:90% ; margin: 20px auto"></div>
+
+
+<div id="blackcover" style="background:#1A1A1A; opacity:0.7; position:fixed; top:0; left:0;width: 100%;height:100%; display:none"></div>
 
 <script>
 //var canvas = document.getElementById('myCanvas');
@@ -91,19 +106,105 @@ function readFile(file){
 var imageType=/image.*/;
 var videoType=/video.*/;
 var imgorVideo;
+var container=document.createElement("fig");
+
+container.style.position="relative";
+container.style.display="inline-block";
+document.getElementById("imgarea").appendChild(container);
 
 
+    var cross=document.createElement("button");
+    cross.type="button";
+    cross.className="btn btn-default btn-md";
+    cross.style.display="none";
+
+
+    var zoom=document.createElement("button");
+    zoom.type="button";
+    zoom.className="btn btn-default btn-md";
+    zoom.style.display="none";
+
+
+    cross.innerHTML="<span class='glyphicon glyphicon-remove' aria-hidden='true'/>";
+    zoom.innerHTML="<span class='glyphicon glyphicon-zoom-in' aria-hidden='true'/>";
+    //var cross=document.createElement("span");
+    //var zoom=document.createElement("span");
+   // cross.className="glyphicon glyphicon-remove";
+    //zoom.className="glyphicon glyphicon-zoom-in";
+    cross.style.position="absolute";
+    zoom.style.position="absolute";
+    cross.style.right="70px";
+    zoom.style.right="20px";
+    cross.style.top="20px";
+    zoom.style.top="20px";
+     //container.appendChild(imgorVideo);
+    container.appendChild(cross);
+    container.appendChild(zoom);
+    cross.onclick =function(){
+   container.parentNode.removeChild(container);};
+
+   
+
+
+  /*cross.onclick=function(){ 
+     var backpanel=document.createElement("div");
+     var piczoom=document.createElement("img");
+     piczoom.height=600;
+     backpanel.appendChild(piczoom);
+     backpanel.style.background="";
+     body.appendChild(backpanel);
+   };*/
+
+   container.onmouseover=function(){
+      zoom.style.display="inline";
+      cross.style.display="inline";
+  }
+
+    container.onmouseout=function(){
+      zoom.style.display="none";
+      cross.style.display="none";
+  }
 
 if(file.type.match(imageType)){
-  imgorVideo= document.createElement("img");
-  imgorVideo.onclick=function(){ this.style.display="none";};
+  
+   imgorVideo= document.createElement("img");
+    zoom.onclick=function(){
+      //document.getElementById("blackcover").style.height=2*document.getElementById("b").clientWidth;
+      document.getElementById("blackcover").style.display="block";
+      var zoompic=document.createElement("img");
+      zoompic.src=this.parentNode.getElementsByTagName("img")[0].src;
+
+      zoompic.style.display="block";
+      zoompic.style.width="60%";
+     
+      //String(Math.min(600,zoompic.height))+"px";
+     
+      zoompic.style.margin="10% 20%";
+      zoompic.style.position="fixed";
+      zoompic.style.top=0;     
+      //zoompic.style.opacity=1;
+       document.getElementById("b").appendChild(zoompic);
+        if(zoompic.clientHeight>window.innerHeight*0.9){
+            zoompic.style.width="40%";
+            zoompic.style.margin="3% 30%";
+        }
+        
+        document.getElementById("blackcover").onclick=function(){
+          this.style.display="none";
+          this.parentNode.removeChild(zoompic);
+        };
+   };
+  //imgorVideo.style.width="500px";
+ // imgorVideo.style.display="inline-block";
+  //imgorVideo.style.position="relative";
+ 
 }
 else if(file.type.match(videoType)){
   imgorVideo= document.createElement("video");
-  imgorVideo.ondblclick=function(){ this.style.display="none";};
+  //imgorVideo.ondblclick=function(){ this.style.display="none";};
   imgorVideo.controls=true;
   imgorVideo.isPlay=false;
-  imgorVideo.onclick=function(){ 
+  /*imgorVideo.onclick=function(){ 
   	 if(this.isPlay){
   	 	this.pause(); 
   	     this.isPlay=false;
@@ -116,7 +217,7 @@ else if(file.type.match(videoType)){
 
   	 };
  imgorVideo.onplay=function(){this.isPlay=true};
- imgorVideo.onpause=function(){this.isPlay=false};
+ imgorVideo.onpause=function(){this.isPlay=false};*/
   	
 
 }
@@ -125,12 +226,14 @@ else if(file.type.match(videoType)){
       //}
     //  myVideo.play();
 
-imgorVideo.src=window.URL.createObjectURL(file);
+  imgorVideo.src=window.URL.createObjectURL(file);
 //imgorVideo.onload = function(e) {
    // window.URL.revokeObjectURL(this.src);
     imgorVideo.height=300;
-    imgorVideo.width=500;
-    document.getElementById("imgarea").appendChild(imgorVideo);
+    //imgorVideo.width=500;
+    container.appendChild(imgorVideo);
+
+
 //}
 
 
