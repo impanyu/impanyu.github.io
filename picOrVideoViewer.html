@@ -78,7 +78,7 @@ and the most populous metropolitan area in the world.</p>
 </form>
 
 
-<div id="imgarea" style="width:90% ; margin: 20px auto"></div>
+<div id="imgarea" style="width:98% ; margin: 20px auto"></div>
 
 
 <div id="blackcover" style="background:#1A1A1A; opacity:0.7; position:fixed; top:0; left:0;width: 100%;height:100%; display:none"></div>
@@ -121,12 +121,15 @@ document.getElementById("imgarea").appendChild(container);
     cross.type="button";
     cross.className="btn btn-default btn-md";
     cross.style.display="none";
+    cross.style.zIndex="1";
+
 
 
     var zoom=document.createElement("button");
     zoom.type="button";
     zoom.className="btn btn-default btn-md";
     zoom.style.display="none";
+    zoom.style.zIndex="1";
 
 
     cross.innerHTML="<span class='glyphicon glyphicon-remove' aria-hidden='true'/>";
@@ -145,6 +148,7 @@ document.getElementById("imgarea").appendChild(container);
     container.appendChild(cross);
     container.appendChild(zoom);
     cross.onclick =function(){
+      //alert("123");
    container.parentNode.removeChild(container);};
 
    
@@ -169,28 +173,44 @@ document.getElementById("imgarea").appendChild(container);
       cross.style.display="none";
   }
 
-if(file.type.match(imageType)){
-  
-   imgorVideo= document.createElement("img");
-    zoom.onclick=function(){
+  zoom.onclick=function(){
       //document.getElementById("blackcover").style.height=2*document.getElementById("b").clientWidth;
       document.getElementById("blackcover").style.display="block";
-      var zoompic=document.createElement("img");
-      zoompic.src=this.parentNode.getElementsByTagName("img")[0].src;
+     // console.info(this.parentNode.childNodes[2].tagName=="IMG");
+      if(this.parentNode.childNodes[2].tagName==="IMG")
+         var zoompic=document.createElement("img");
+      else{
+         var zoompic=document.createElement("video");
+          zoompic.controls=true;
+          zoompic.isPlay=false;
+       }
 
+     // zoompic.src=this.parentNode.getElementsByTagName("img")[0].src;
+      zoompic.src=this.parentNode.childNodes[2].src;
       zoompic.style.display="block";
       zoompic.style.width="60%";
      
+     
       //String(Math.min(600,zoompic.height))+"px";
      
-      zoompic.style.margin="7% 20%";
+      zoompic.style.marginLeft="20%";
       zoompic.style.position="fixed";
       zoompic.style.top=0;     
       //zoompic.style.opacity=1;
-       document.getElementById("b").appendChild(zoompic);
-        if(zoompic.clientHeight>window.innerHeight*0.9){
+    
+      document.getElementById("b").appendChild(zoompic);
+      //console.info(zoompic.clientWidth);
+      //console.info(zoompic.clientHeight);
+      zoompic.style.marginTop=String((window.innerHeight-zoompic.clientHeight)/2/window.innerWidth*100)+"%";
+
+        if(zoompic.clientHeight>window.innerHeight){
+            //zoompic.style.height="80%";
+            console.info(zoompic.clientHeight);
             zoompic.style.width="40%";
-            zoompic.style.margin="3% 30%";
+            console.info(zoompic.clientHeight);
+        zoompic.style.marginTop=String((window.innerHeight-zoompic.clientHeight)/2/window.innerWidth*100)+"%";
+            zoompic.style.marginLeft="30%";
+
         }
         
         document.getElementById("blackcover").onclick=function(){
@@ -199,6 +219,15 @@ if(file.type.match(imageType)){
           //
         };
    };
+
+
+
+if(file.type.match(imageType)){
+  
+   imgorVideo= document.createElement("img");
+   //imgorVideo.style.margin="5px";
+ 
+    
   //imgorVideo.style.width="500px";
  // imgorVideo.style.display="inline-block";
   //imgorVideo.style.position="relative";
@@ -206,9 +235,15 @@ if(file.type.match(imageType)){
 }
 else if(file.type.match(videoType)){
   imgorVideo= document.createElement("video");
+  imgorVideo.style.position="relative";
+  imgorVideo.style.top=0;
+  imgorVideo.style.left=0;
+     // console.log(imgorVideo.style.zIndex);
+
   //imgorVideo.ondblclick=function(){ this.style.display="none";};
   imgorVideo.controls=true;
   imgorVideo.isPlay=false;
+  
   /*imgorVideo.onclick=function(){ 
   	 if(this.isPlay){
   	 	this.pause(); 
@@ -230,11 +265,12 @@ else if(file.type.match(videoType)){
     //    myVideo.src = window.URL.createObjectURL();
       //}
     //  myVideo.play();
-
+  imgorVideo.height=300;
   imgorVideo.src=window.URL.createObjectURL(file);
+  // imgorVideo.style.display="inline";
 //imgorVideo.onload = function(e) {
    // window.URL.revokeObjectURL(this.src);
-    imgorVideo.height=300;
+    
     //imgorVideo.width=500;
     container.appendChild(imgorVideo);
 
