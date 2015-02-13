@@ -73,9 +73,13 @@ and the most populous metropolitan area in the world.</p>
 
 
 <form>
-<input type="file" id="fileinput" class="btn btn-primary btn-lg" style="width:100%" name="picorvideo" accept="image/*, video/*"/>
+<input type="file" id="fileinput"  class="btn btn-primary btn-lg" style="width:100%" name="picorvideo" accept="image/*, video/*"/>
+<!--<input type="text" id="url"/>
+<input type="button" id="sub"   class="btn btn-primary btn-lg" value="submit"/>-->
 <!-- Standard button -->
 </form>
+
+
 
 
 <div id="imgarea" style="width:98% ; margin: 20px auto"></div>
@@ -94,13 +98,21 @@ and the most populous metropolitan area in the world.</p>
 
 
 document.getElementById("fileinput").onchange = function(e){
+
      if(!e.target.files[0])
             return;
-      
-     readFile(e.target.files[0]);
+    
+     readFile(e.target.files[0],0);
    
      console.log(e.target.files[0].type);
-}
+};
+
+document.getElementById("sub").onclick = function(){
+  //alert("qwe");
+  readFile(document.getElementById("url").value);
+};
+
+
 
 function readFile(file){
 	     
@@ -190,12 +202,12 @@ document.getElementById("imgarea").appendChild(container);
      // zoompic.src=this.parentNode.getElementsByTagName("img")[0].src;
       zoompic.src=this.parentNode.childNodes[2].src;
       zoompic.style.display="block";
-      zoompic.style.width="60%";
+      zoompic.style.width="70%";
      
      
       //String(Math.min(600,zoompic.height))+"px";
      
-      zoompic.style.margin="20%";
+      zoompic.style.margin="15%";
       zoompic.style.position="fixed";
       zoompic.style.top=0;    
        zoompic.style.left=0;  
@@ -227,11 +239,19 @@ document.getElementById("imgarea").appendChild(container);
 
 
 
-if(file.type.match(imageType)){
+if(typeof file==="string")//if file is a url
+{
+  //alert("123");
+  imgorVideo= document.createElement("iframe");
+  imgorVideo.src=file;
+
+}
+
+else if(file.type.match(imageType)){
   
    imgorVideo= document.createElement("img");
    //imgorVideo.style.margin="5px";
- 
+ imgorVideo.src=window.URL.createObjectURL(file);
     
   //imgorVideo.style.width="500px";
  // imgorVideo.style.display="inline-block";
@@ -248,6 +268,7 @@ else if(file.type.match(videoType)){
   //imgorVideo.ondblclick=function(){ this.style.display="none";};
   imgorVideo.controls=true;
   imgorVideo.isPlay=false;
+  imgorVideo.src=window.URL.createObjectURL(file);
   
   /*imgorVideo.onclick=function(){ 
   	 if(this.isPlay){
@@ -271,7 +292,7 @@ else if(file.type.match(videoType)){
       //}
     //  myVideo.play();
   imgorVideo.height=300;
-  imgorVideo.src=window.URL.createObjectURL(file);
+  
   // imgorVideo.style.display="inline";
 //imgorVideo.onload = function(e) {
    // window.URL.revokeObjectURL(this.src);
@@ -282,7 +303,6 @@ else if(file.type.match(videoType)){
 
 
 //}
-
 
  // reader.onload = function(e){
    // applyDataUrlToCanvas( reader.result );
