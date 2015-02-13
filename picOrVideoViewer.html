@@ -111,9 +111,10 @@ var imgorVideo;
 var container=document.createElement("div");
 
 container.style.position="relative";
-container.style.top=0;
-container.style.left=0;
-container.style.display="inline-block";
+//container.style.top=0;
+//container.style.left=0;
+//container.style.display="block";
+container.style.float="left";
 document.getElementById("imgarea").appendChild(container);
 
 
@@ -183,6 +184,7 @@ document.getElementById("imgarea").appendChild(container);
          var zoompic=document.createElement("video");
           zoompic.controls=true;
           zoompic.isPlay=false;
+          //zoompic.style.display="block";
        }
 
      // zoompic.src=this.parentNode.getElementsByTagName("img")[0].src;
@@ -193,15 +195,18 @@ document.getElementById("imgarea").appendChild(container);
      
       //String(Math.min(600,zoompic.height))+"px";
      
-      zoompic.style.marginLeft="20%";
+      zoompic.style.margin="20%";
       zoompic.style.position="fixed";
-      zoompic.style.top=0;     
+      zoompic.style.top=0;    
+       zoompic.style.left=0;  
       //zoompic.style.opacity=1;
-    
       document.getElementById("b").appendChild(zoompic);
-      //console.info(zoompic.clientWidth);
-      //console.info(zoompic.clientHeight);
+    
+      
+      //console.info(zoompic.clientWidth/window.innerWidth);
+     
       zoompic.style.marginTop=String((window.innerHeight-zoompic.clientHeight)/2/window.innerWidth*100)+"%";
+       //console.info(zoompic.clientHeight/window.innerWidth);
 
         if(zoompic.clientHeight>window.innerHeight){
             //zoompic.style.height="80%";
@@ -235,9 +240,9 @@ if(file.type.match(imageType)){
 }
 else if(file.type.match(videoType)){
   imgorVideo= document.createElement("video");
-  imgorVideo.style.position="relative";
-  imgorVideo.style.top=0;
-  imgorVideo.style.left=0;
+  //imgorVideo.style.position="relative";
+  //imgorVideo.style.top=0;
+  //imgorVideo.style.left=0;
      // console.log(imgorVideo.style.zIndex);
 
   //imgorVideo.ondblclick=function(){ this.style.display="none";};
@@ -272,7 +277,8 @@ else if(file.type.match(videoType)){
    // window.URL.revokeObjectURL(this.src);
     
     //imgorVideo.width=500;
-    container.appendChild(imgorVideo);
+    container.style.height="300px";
+        container.appendChild(imgorVideo);
 
 
 //}
