@@ -1,0 +1,18 @@
+Assignment 1 README
+YU PAN
+A20252285
+
+This is a javascirpt program reading a json file of products and recipes and calculating the total and the cost per supplier. All the results should be presented on the page in run time.
+
+Basically there are three parts of the program:
+1.A name space called myspace to include all the definitions including an "ajax" object to deal with ajax messages, a "Recipe" object defintion and a "Product" defintion. In the Recipe defintion, there is a method called "render" to rend the recipe name on the HTML page.
+  This part is inclued in the core.js file.         									
+
+2. The second part is the callback of ajax. This function will be called rigth after the ajax receives the json file in the server. It will create all the recipe and product objects.
+
+3. The third part is the callback of the submit button. This part is responsible for computing all the result according to the input number. Then it will render the total cost and the cost per supplier. Because the button can be clicked several times, so we need to remove the relevant elements and clear relevant buffer in the beginning of this function.
+
+There are two main challenges for me in this assignment:
+First is the javascript grammar, like,how to traverse all the elements of an array and how to traverse all the elements of an object. Also, the namespace pattern is interesting because it will make javascript has some sort of private variables like other languages.
+Second is the CSS. There used to be some weird things happening. But all of a sudden everything become on the right track.
+Overall it is a good practice for me.

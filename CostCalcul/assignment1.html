@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+	<head>
+	<style>
+	#cakeHook{
+        border: 1px solid black;
+        background:#3366FF;
+        padding:3% 3%;
+        width:40%;
+        margin:10% auto;
+	}
+
+	p{
+        width:50%;
+        height:20px;
+        text-align:center;
+        padding:20px;
+        border: 1px solid black;
+      
+        margin:3% 10%;
+        //clear:left;
+        display:inline-block;
+        	}
+
+  p#total{
+    margin:3% auto;
+    display:block;
+  }
+
+	#cal{
+		   width:50%;
+		   height:50px;
+       text-align:center;
+       margin:3% auto;
+       display:block;
+     
+	}
+
+  input[type=text]{
+     //float:left;
+     display:inline-block;
+     margin:5% 1%;
+     height:20px;
+     width:10%;
+  }
+
+
+	</style>
+	<title></title>
+	</head>
+
+	<body>	
+		<div id="cakeHook" >
+		  <div id="recipe"></div>
+
+      <button id="cal" type="button">Calculate</button>
+      <p id="total">Total</p>
+      <div id="supplier"></div>
+		</div>
+
+
+		<script src="core.js"></script>
+		<script>
+         
+    //callback of ajax
+     var callback = function(jsonstring) {
+
+               objects=JSON.parse(jsonstring);
+
+               total=0;
+              supplierTotal={};
+
+           products=[];
+
+            objects[0].products.forEach(function(elem, index, arr){
+              var newpro=new myspace.Product(elem.name,elem.cost,elem.per,elem.supplier);
+              //newpro.render();
+                products.push(newpro);
+                //products["N"+window.btoa(elem.name)]=elem;
+             });
+
+               
+               recipes=[]; 
+            objects[0].recipes.forEach(function(elem,index,arr){
+              var newrec= new myspace.Recipe(elem.name,elem.ingredients[0]);
+              newrec.render();
+                  recipes.push(newrec); 
+             });
+      
+
+
+           };
+
+				myspace.ajax.get("a1data.json",callback);
+
+		
+             //callback of calculate button
+	         document.getElementById("cal").onclick=function(){
+             //clear total and supplierTotal
+               total=0;
+              Object.keys(supplierTotal).forEach(function(elem){
+                   supplierTotal[elem]=0;});
+          
+               //remove all child below supplier element
+               var s=document.getElementById("supplier");
+               while (s.hasChildNodes()) {   
+                  s.removeChild(s.firstChild);
+                }
+               
+               //calculate the total and split it by each supplier
+                products.forEach(function(elemP){
+               	    recipes.forEach(function(elemR){
+               	    	
+                        var value=document.getElementById(elemR.name).value;
+               	      
+               	    	//if have this ingredient
+                       if(value && (amount=elemR.ingredients[elemP.name])) 
+                       {
+                          
+
+                       	    if(supplierTotal[elemP.supplier]===undefined)
+                       	    	supplierTotal[elemP.supplier]=0;
+                       	    else{
+                              //alert("");{}
+                            
+                            console.info(amount*value*elemP.cost);
+                          supplierTotal[elemP.supplier]+=amount*value*elemP.cost;}
+
+                       }
+               	    });
+                   
+
+               });
+
+                //print each supplier and the total
+
+                Object.keys(supplierTotal).forEach(function(elem){
+
+                   	total+=supplierTotal[elem];
+                  // console.info("total=" + total);
+               	      var sup=document.createElement("p");
+               	      sup.innerHTML=elem+": "+supplierTotal[elem];
+                       document.getElementById("supplier").appendChild(sup);
+                       sup.style.margin= "3% auto";
+                       sup.style.display="block";
+
+               });
+
+               document.getElementById("total").innerHTML="Total: "+total;             
+
+	         };
+
+     
+
+		</script>	
+	</body>
+</html>
