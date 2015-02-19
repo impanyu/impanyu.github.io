@@ -48,13 +48,15 @@ nav ul li {display:inline; margin:5px;}
 
 
  document.getElementById("refresh").onclick=function(){
-    var url="url".trim();
+    var url=document.getElementById("url").value.trim();
     if(url.substring(0,4).search("http")==0)
-      document.getElementById("frame").src=document.getElementById("url").value;
+      document.getElementById("frame").src=url;
     else
-       document.getElementById("frame").src="http//:"+document.getElementById("url").value;
+       document.getElementById("frame").src="http://"+url;
+     
     var iframe = document.getElementsByTagName("iframe")[0];
     var style=iframe.contentWindow.document.createElement("style");
+
     style.innerHTML="::selection {color: red; background: yellow;}";
     iframe.contentWindow.document.getElementsByTagName("head")[0].appendChild(style);
 
