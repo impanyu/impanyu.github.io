@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Index</title>
+<meta charset="utf-8">
+
+<!--[if lt IE 9]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">
+</script>
+<![endif]-->
+
+<style>
+body {font-family: Verdana, sans-serif; font-size:0.8em;}
+header,nav, section,article,footer
+{border:1px solid grey; margin:5px; padding:8px;}
+nav ul {margin:0; padding:0;}
+nav ul li {display:inline; margin:5px;}
+
+.copyright{
+	width:150px;
+	margin:10px auto;
+}
+#bd{
+   width:90%;
+   margin:10px auto;
+}
+
+#myCanvas{
+  margin:1% auto;
+  display:block;
+}
+</style>
+
+   <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+
+        <!-- load polyfill, local copy first for local testing -->
+<script src="extra/adapter.js" type="text/javascript"></script>
+
+<!-- load XHR-based signaling channel that direct connects based
+     on a key -->
+<script src="clientXHRSignalingChannel.js"
+        type="text/javascript"></script>
+
+
+</head>
+
+<body id="bd">
+
+<section>
+
+
+
+<canvas id="myCanvas" width="800" height="500"></canvas>
+
+<input type="text" name="key" id="key"
+           onkeyup="if (event.keyCode == 13) {
+                      connect(); return false;}"/>
+    <button id="connect" onclick="connect()">Connect</button>
+    <span id="response"></span>
+    <button id="call" style="display:none"
+            onclick = "call()">Call</button>
+</section>
+
+<script>
+var signalingChannel, key, id,side=0,
+    //haveLocalMedia = false,
+    weWaited = false,
+    state="s",
+    enemystate="s",
+    receiveChannel,
+    sendChannel,
+    queryparams,
+   // myVideoStream, myVideo, 
+    //yourVideoStream, yourVideo,
+    doNothing = function() {},
+    pc,
+    constraints = {mandatory: {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true}};
+
+
+  window.onload = function () {
+
+  // auto-connect signaling channel if key provided in URI
+  if (queryparams && queryparams['key']) {
+    document.getElementById("key").value = queryparams['key'];
+    connect();
+  }
+
+ // myVideo = document.getElementById("myVideo");
+ // yourVideo = document.getElementById("yourVideo");
+  
+  //getMedia();
+
+  //  connect() calls createPC() when connected.
+  //  attachMedia() is called when both createPC() and getMedia()
+  //  have succeeded.
+};
+
+
+function connect() {
+  var errorCB, scHandlers, handleMsg;
+
+  // First, get the key used to connect
+  key = document.getElementById("key").value;
+
+  // This is the handler for all messages received on the
+  // signaling channel.
+  handleMsg = function (msg) {
+    // First, we clean up the message and post it on-screen
+    //var msgE = document.getElementById("inmessages");
+    //var msgString = JSON.stringify(msg).replace(/\\r\\n/g,'\n');
+    //msgE.value = msgString + "\n" + msgE.value;
+
+    // Then, we take action based on the kind of message
+    if (msg.type === "offer") {
+      pc.setRemoteDescription(new RTCSessionDescription(msg));
+      answer();
+      document.getElementById("call").style.display="none";
+      activateKey();
+    } else if (msg.type === "answer") {
+      pc.setRemoteDescription(new RTCSessionDescription(msg));
+      document.getElementById("call").style.display="none";
+      activateKey();
+    } else if (msg.type === "candidate") {
+      pc.addIceCandidate(
+        new RTCIceCandidate({sdpMLineIndex:msg.mlineindex,
+                             candidate:msg.candidate}));
+    }
+  
+  };
+
+  // handlers for signaling channel
+  scHandlers = {
+    'onWaiting' : function () {
+      setStatus("Waiting");
+      // weWaited will be used later for auto-call
+      weWaited = true;
+    },
+    'onConnected': function () {
+      setStatus("Connected");
+      // set up the RTC Peer Connection since we're connected
+     // send({side:1});
+      createPC();
+      createChannel();
+      document.getElementById("call").style.display="inline";
+      //call();
+    },
+    'onMessage': handleMsg
+  };
+
+  // Finally, create signaling channel
+  signalingChannel = createSignalingChannel(key, scHandlers);
+  errorCB = function (msg) {
+    document.getElementById("response").innerHTML = msg;
+  };
+
+  // and connect.
+  signalingChannel.connect(errorCB);
+}
+
+
+
+function send(msg) {
+  var handler = function (res) {
+    document.getElementById("response").innerHTML = res;
+    return;
+  },
+
+  // Get message if not passed in
+  msg = msg || "";//document.getElementById("message").value"";
+
+  // Clean it up and post it on-screen
+  //msgE = document.getElementById("outmessages");
+  //var msgString = JSON.stringify(msg).replace(/\\r\\n/g,'\n');
+  //msgE.value = msgString + "\n" + msgE.value;
+
+  // and send on signaling channel
+  signalingChannel.send(msg, handler);
+}
+
+
+
+function createPC() {
+  var stunuri = true,
+      turnuri = false,
+      myfalse = function(v) {
+                  return ((v==="0")||(v==="false")||(!v)); },
+      config = new Array();
+
+  // adjust config string based on any query params
+  if (queryparams) {
+    if ('stunuri' in queryparams) {
+      stunuri = !myfalse(queryparams['stunuri']);
+    }
+    if ('turnuri' in queryparams) {
+      turnuri = !myfalse(queryparams['turnuri']);
+    };
+  };
+
+  if (stunuri) {
+    // this is one of Google's public STUN servers
+    config.push({"url":"stun:stun.l.google.com:19302"});
+  }
+  if (turnuri) {
+    if (stunuri) {
+      // can't use TURN-only TURN server in this case because of
+      // bug in Chrome that causes STUN server responses to be
+      // ignored, so we use TURN server that also does STUN
+      config.push({"url":"turn:user@turn.webrtcbook.com",
+                   "credential":"test"});
+    } else {
+      // this is our TURN-only TURN server
+      config.push({"url":"turn:user@turn-only.webrtcbook.com",
+                   "credential":"test"});
+    }
+  }
+  console.log("config = " + JSON.stringify(config));
+
+  pc = new RTCPeerConnection({iceServers:config});
+  pc.onicecandidate = onIceCandidate;
+
+  //pc.onaddstream = onRemoteStreamAdded;
+  //pc.onremovestream = onRemoteStreamRemoved;
+
+  // wait for local media to be ready
+  //attachMediaIfReady();
+}
+
+
+function onIceCandidate(e) {
+  if (e.candidate) {
+    send({type:  'candidate',
+          mlineindex:  e.candidate.sdpMLineIndex,
+          candidate:  e.candidate.candidate});
+  }
+}
+
+function call() {
+  pc.createOffer(gotDescription, doNothing, constraints);
+}
+
+// and this generates it for an answer.
+function answer() {
+  pc.createAnswer(gotDescription, doNothing, constraints);
+}
+
+function gotDescription(localDesc) {
+  pc.setLocalDescription(localDesc);
+  send(localDesc);
+}
+
+
+function setStatus(str) {
+  
+}
+
+function createChannel(){
+
+pc.ondatachannel = function(event) {
+  receiveChannel = event.channel;
+  receiveChannel.onmessage = function(event){
+    //document.querySelector("div#receive").innerHTML = event.data;
+    var data=JSON.parse(event.data);
+    enemystate=data.state;
+    enemyPosX=data.X;
+    enemyPosY=data.Y;
+   // e=event;
+    //console.log(JSON.stringify(event.data));
+    getPos=true;
+  };
+};
+
+sendChannel = pc.createDataChannel("sendDataChannel", {reliable: false});
+
+}
+
+
+function activateKey(){
+    document.getElementById("bd").onkeydown=function(event){
+          if (event.keyCode == 38) {
+                      state='u';
+                     // sendChannel.send("1111");
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                      //console.info({'state':state,'X':posX,'Y':posY});
+                    }
+          else if(event.keyCode == 40){
+                    state ='d';
+                     sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                  }
+          else if(event.keyCode == 37){
+                    state ='l';
+                     sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                }
+          else if(event.keyCode == 39){
+
+                    state ="r";
+                    sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                  }
+        
+         
+
+          };
+
+document.getElementById("bd").onkeyup=function(event){
+       if (event.keyCode == 38 || event.keyCode == 40 || event.keyCode == 37 || event.keyCode == 39) {
+                      state='s';
+                      //sendChannel.send("11111");
+                     
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                    }
+};
+
+}
+
+
+
+
+
+
+
+
+
+var canvas = document.getElementById('myCanvas');
+
+if (canvas.getContext) {
+    var context = canvas.getContext('2d');
+}
+
+//var vx = 10,
+  //  vy = -10,
+   // gravity = 1;
+
+
+    var r=10;
+    var posX = r;
+    var posY = r;
+    var enemyPosX=r;
+    var enemyPosY=r;
+     var vX=0,vY=0,enemyVX=0,enemyVY=0;
+     var getPos=false;
+     
+
+
+setInterval(function() {
+    context.fillStyle = "black";
+    context.fillRect(0,0,canvas.width, canvas.height);  
+    if(state==='l'){
+       vX=-5;
+       vY=0;
+     }
+    else if(state==='r'){
+       vX=5;
+       vY=0;
+     }
+    else if(state==='d'){
+       vX=0;
+       vY=5;
+     }
+    else if(state==='u'){
+       vX=0;
+       vY=-5;
+     }
+     else{
+       vX=0;
+       vY=0;
+     }
+
+   posX+=vX;
+    posY+=vY;
+  
+
+    if(posX<r)
+      posX=r;
+    if(posY<r)
+      posY=r;
+   
+
+    if(posX>canvas.width-r)
+      posX=canvas.width-r;
+    if(posY>canvas.height-r)
+      posY=canvas.height-r; 
+
+
+
+   if(getPos=false){
+   if(enemystate==='l'){
+       enemyVX=-5;
+       enemyVY=0;
+     }
+    else if(enemystate==="r"){
+       enemyVX=5;
+       enemyVY=0;
+     }
+    else if(enemystate==='d'){
+       enemyVX=0;
+       enemyVY=5;
+     }
+    else if(enemystate==='u'){
+       enemyVX=0;
+       enemyVY=-5;
+     }
+     else{
+       enemyVX=0;
+       enemyVY=0;
+     }
+    enemyPosX+=enemyVX;
+    enemyPosY+=enemyVY;
+
+     if(enemyPosX<r)
+       enemyPosX=r;
+     if(enemyPosY<r)
+       enemyPosY=r;
+
+      if(enemyPosX>canvas.width-r)
+      enemyPosX=canvas.width-r;
+    if(enemyPosY>canvas.height-r)
+      enemyPosY=canvas.height-r;
+
+   }
+   else{
+      getPos=false;
+   }
+
+
+    context.beginPath();
+    context.fillStyle = "white";
+
+    context.beginPath();
+    context.arc(posX, posY, r, 0, Math.PI*2, true); 
+    context.fill();
+
+    context.fillStyle = "blue";
+    context.beginPath();
+    context.arc(enemyPosX, enemyPosY, r, 0, Math.PI*2, true); 
+    //context.closePath();
+    context.fill();
+}, 25);
+
+</script>
+
+</body>
+</html>
