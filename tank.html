@@ -66,7 +66,7 @@ nav ul li {display:inline; margin:5px;}
 </section>
 
 <script>
-var signalingChannel, key, id,side=0,
+var signalingChannel, key, id,
     //haveLocalMedia = false,
     weWaited = false,
     state="s",
@@ -121,11 +121,11 @@ function connect() {
       pc.setRemoteDescription(new RTCSessionDescription(msg));
       answer();
       document.getElementById("call").style.display="none";
-      activateKey();
+     
     } else if (msg.type === "answer") {
       pc.setRemoteDescription(new RTCSessionDescription(msg));
       document.getElementById("call").style.display="none";
-      activateKey();
+     // activateKey();
     } else if (msg.type === "candidate") {
       pc.addIceCandidate(
         new RTCIceCandidate({sdpMLineIndex:msg.mlineindex,
@@ -147,6 +147,7 @@ function connect() {
      // send({side:1});
       createPC();
       createChannel();
+       activateKey();
       document.getElementById("call").style.display="inline";
       //call();
     },
@@ -282,43 +283,122 @@ sendChannel = pc.createDataChannel("sendDataChannel", {reliable: false});
 
 function activateKey(){
     document.getElementById("bd").onkeydown=function(event){
+      var ifopen=false;
+      if(sendChannel.readyState==='open')
+        ifopen=true;
+
+
+      
           if (event.keyCode == 38) {
-                      state='u';
+                    
+                      
                      // sendChannel.send("1111");
+                     if( setArrow("u")){
+                        state='u';
+                        if(ifopen)
                        sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                     }
+                     
                       //console.info({'state':state,'X':posX,'Y':posY});
                     }
           else if(event.keyCode == 40){
-                    state ='d';
-                     sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                   
+                
+                   if( setArrow("d")){
+                        state='d';
+                        if(ifopen)
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                     }
+                      
                   }
-          else if(event.keyCode == 37){
-                    state ='l';
-                     sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+           else if(event.keyCode == 37){
+                    
+                   if( setArrow("l")){
+                        state='l';
+                        if(ifopen)
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                     }
                 }
           else if(event.keyCode == 39){
-
-                    state ="r";
-                    sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+           
+                  if( setArrow("r")){
+                        state='r';
+                        if(ifopen)
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                     }
                   }
         
          
-
+              
           };
 
 document.getElementById("bd").onkeyup=function(event){
-       if (event.keyCode == 38 || event.keyCode == 40 || event.keyCode == 37 || event.keyCode == 39) {
-                      state='s';
-                      //sendChannel.send("11111");
+    var ifopen=false;
+      if(sendChannel.readyState==='open')
+        ifopen=true;
+     
+          if (event.keyCode == 38 ) {
                      
+                      state=unsetArrow("u");
+                      //sendChannel.send("11111");
+                       if(ifopen)
                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
-                    }
-};
+          }
+          else if(event.keyCode == 40){
+
+                     state=unsetArrow("d");
+                      //sendChannel.send("11111");
+                      if(ifopen)
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+          }
+          else if (event.keyCode == 37 ){
+                    state=unsetArrow("l");
+                      //sendChannel.send("11111");
+                      if(ifopen)
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+
+          }
+          else if( event.keyCode == 39){
+                       state=unsetArrow("r");
+                      //sendChannel.send("11111");
+                      if(ifopen)
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+
+          }
+
+      
+ };
 
 }
 
+function setArrow(s){
+
+  if(arrow[s]===0){
+       arrow[s]=1;
+       return true;}
+  else
+     return false;
 
 
+}
+
+function unsetArrow(s){
+ arrow[s]=0;
+// Object.keys(arrow).forEach(){
+
+ //}
+ if(arrow["u"]===1)
+   return "u";
+  if(arrow["r"]===1)
+   return "r";
+ if(arrow["d"]===1)
+   return "d";
+ if(arrow["l"]===1)
+   return "l";
+ return "s";
+
+
+}
 
 
 
@@ -343,6 +423,7 @@ if (canvas.getContext) {
     var enemyPosY=r;
      var vX=0,vY=0,enemyVX=0,enemyVY=0;
      var getPos=false;
+     var arrow={u:0,r:0,d:0,l:0};
      
 
 
@@ -387,7 +468,7 @@ setInterval(function() {
 
 
 
-   if(getPos=false){
+   if(getPos==false){
    if(enemystate==='l'){
        enemyVX=-5;
        enemyVY=0;
