@@ -370,6 +370,9 @@
            this.render=function(ctx){
              ctx.fillStyle="#909090";
              ctx.fillRect(v.x,v.y,width,height);
+             ctx.strokeStyle="#000000";
+             //ctx.st
+             ctx.strokeRect(v.x,v.y,width,height);
 
            };
 
