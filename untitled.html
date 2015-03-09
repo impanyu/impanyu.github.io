@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<title></title>
+</head>
+<body>
+<script type="text/javascript">
+function selectText() {
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById('selectable'));
+        range.select();
+    } else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById('selectable'));
+        window.getSelection().addRange(range);
+    }
+}
+</script>
+<span id="selectable">点击后选中<br />点击后选中<br />点击后选中<br />点击后选中<br /></span> 
+<input type="button" onclick="selectText()" value="点我" />
+</body>
+</html>

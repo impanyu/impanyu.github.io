@@ -1,3 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Index</title>
+<meta charset="utf-8">
+
+<!--[if lt IE 9]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">
+</script>
+<![endif]-->
+
+<style>
+body {font-family: Verdana, sans-serif; font-size:0.8em;}
+header,nav, section,article,footer
+{border:1px solid grey; margin:5px; padding:8px;}
+nav ul {margin:0; padding:0;}
+nav ul li {display:inline; margin:5px;}
+
+.copyright{
+	width:150px;
+	margin:10px auto;
+}
+#bd{
+   width:90%;
+   margin:10px auto;
+}
+
+#myCanvas{
+  margin:1% auto;
+  display:block;
+}
+</style>
+
+   <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+
+        <!-- load polyfill, local copy first for local testing -->
+<script src="extra/adapter.js" type="text/javascript"></script>
+
+<!-- load XHR-based signaling channel that direct connects based
+     on a key -->
+<script src="clientXHRSignalingChannel.js"
+        type="text/javascript"></script>
+
+
+</head>
+
+<body id="bd">
+
+<section>
+
+
+
+<canvas id="myCanvas" width="800" height="500"></canvas>
+
+<input type="text" name="key" id="key"
+           onkeyup="if (event.keyCode == 13) {
+                      connect(); return false;}"/>
+    <button id="connect" onclick="connect()">Connect</button>
+    <span id="response"></span>
+    <button id="call" style="display:none"
+            onclick = "call()">Call</button>
+</section>
+
+<script>
 var signalingChannel, key, id,
     //haveLocalMedia = false,
     weWaited = false,
@@ -6,8 +74,6 @@ var signalingChannel, key, id,
     receiveChannel,
     sendChannel,
     queryparams,
-    fireCount=0,
-    //ifFire=false;
    // myVideoStream, myVideo, 
     //yourVideoStream, yourVideo,
     doNothing = function() {},
@@ -37,7 +103,6 @@ var signalingChannel, key, id,
 
 
 function connect() {
-  document.getElementById("connect").style.display='none';
   var errorCB, scHandlers, handleMsg;
 
   // First, get the key used to connect
@@ -55,13 +120,11 @@ function connect() {
     if (msg.type === "offer") {
       pc.setRemoteDescription(new RTCSessionDescription(msg));
       answer();
-      //document.getElementById("call").style.display="none";
+      document.getElementById("call").style.display="none";
      
     } else if (msg.type === "answer") {
       pc.setRemoteDescription(new RTCSessionDescription(msg));
-     // document.getElementById("call").style.display="none";
-      // document.getElementById("connect").style.display="none";
-
+      document.getElementById("call").style.display="none";
      // activateKey();
     } else if (msg.type === "candidate") {
       pc.addIceCandidate(
@@ -77,11 +140,6 @@ function connect() {
       setStatus("Waiting");
       // weWaited will be used later for auto-call
       weWaited = true;
-      //document.getElementById("connect").style.display="none";
-      //document.getElementById("hint").innerHTML="Give your partner this link: http://nodejs-ypan16.rhcloud.com/tank2.html?key="+key;
-      document.getElementById("hint").innerHTML="Give your partner the same key as yours.";
-      mine=0;
-      enemy=1;
     },
     'onConnected': function () {
       setStatus("Connected");
@@ -89,10 +147,8 @@ function connect() {
      // send({side:1});
       createPC();
       createChannel();
-      // activateKey();
-      if(!weWaited)
-        call();
-      //document.getElementById("call").style.display="inline";
+       activateKey();
+      document.getElementById("call").style.display="inline";
       //call();
     },
     'onMessage': handleMsg
@@ -210,45 +266,20 @@ pc.ondatachannel = function(event) {
   receiveChannel = event.channel;
   receiveChannel.onmessage = function(event){
     //document.querySelector("div#receive").innerHTML = event.data;
-
     var data=JSON.parse(event.data);
-     if(data.newShot){
-      //var ox=(tanks[enemy].currentPoints[12].x+tanks[enemy].currentPoints[13].x)/2;
-      //var oy=(tanks[enemy].currentPoints[1].y+tanks[enemy].currentPoints[2].y)/2;
-      var ox=data.ox;
-      var oy=data.oy;
-      var d=data.d;
-      //tanks[enemy].score=data.myscore;
-     
-      
-     shots.push(new myObjects.shot(ox,oy,d,tanks[enemy].color));
-     document.getElementById("fire").currentTime=0;
-      document.getElementById("fire").play();
-   }
-  // else if(data.myscore)
-    // tanks[enemy].score=data.myscore;
-   else{
-    tanks[enemy].state=data.state;
-    tanks[enemy].originX=data.X;
-    tanks[enemy].originY=data.Y;
-    tanks[enemy].d=data.d;
-  }
-    
-   
+    enemystate=data.state;
+    enemyPosX=data.X;
+    enemyPosY=data.Y;
    // e=event;
     //console.log(JSON.stringify(event.data));
     getPos=true;
   };
 };
 
-sendChannel = pc.createDataChannel("sendDataChannel", {reliable: true});
-sendChannel.onopen=  function(){document.getElementById("hint").innerHTML="You are ready!"; activateKey();};
+sendChannel = pc.createDataChannel("sendDataChannel", {reliable: false});
 
 }
-function deactivateKey(){
-   document.getElementById("bd").onkeydown=function(){};
-   document.getElementById("bd").onkeyup=function(){};
-}
+
 
 function activateKey(){
     document.getElementById("bd").onkeydown=function(event){
@@ -256,16 +287,16 @@ function activateKey(){
       if(sendChannel.readyState==='open')
         ifopen=true;
 
-      
+
       
           if (event.keyCode == 38) {
                     
                       
                      // sendChannel.send("1111");
-                     if( tanks[mine].setArrow("u")){
-                       // console.info(tank1.arrow);
+                     if( setArrow("u")){
+                        state='u';
                         if(ifopen)
-                       sendChannel.send( JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
                      }
                      
                       //console.info({'state':state,'X':posX,'Y':posY});
@@ -273,35 +304,31 @@ function activateKey(){
           else if(event.keyCode == 40){
                    
                 
-                   if( tanks[mine].setArrow("d")){
-                       
+                   if( setArrow("d")){
+                        state='d';
                         if(ifopen)
-                      sendChannel.send( JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));
-                       }
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                     }
                       
                   }
            else if(event.keyCode == 37){
                     
-                   if( tanks[mine].setArrow("l")){
-                       
+                   if( setArrow("l")){
+                        state='l';
                         if(ifopen)
-                      sendChannel.send(JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));
-                  }
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                     }
                 }
           else if(event.keyCode == 39){
            
-                  if( tanks[mine].setArrow("r")){
-                        
+                  if( setArrow("r")){
+                        state='r';
                         if(ifopen)
-                        sendChannel.send( JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));}
+                       sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+                     }
                   }
-
-
-
-           
-
         
-         //fireCount++;
+         
               
           };
 
@@ -312,50 +339,190 @@ document.getElementById("bd").onkeyup=function(event){
      
           if (event.keyCode == 38 ) {
                      
-                      tanks[mine].unsetArrow("u");
-
+                      state=unsetArrow("u");
                       //sendChannel.send("11111");
                        if(ifopen)
-                       sendChannel.send( JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));
-                   }
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+          }
           else if(event.keyCode == 40){
 
-                     tanks[mine].unsetArrow("d");
+                     state=unsetArrow("d");
                       //sendChannel.send("11111");
                       if(ifopen)
-                      sendChannel.send( JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));
-                       }
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+          }
           else if (event.keyCode == 37 ){
-                    tanks[mine].unsetArrow("l");
+                    state=unsetArrow("l");
                       //sendChannel.send("11111");
                       if(ifopen)
-                      sendChannel.send( JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));
-                       }
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
+
+          }
           else if( event.keyCode == 39){
-                       tanks[mine].unsetArrow("r");
+                       state=unsetArrow("r");
                       //sendChannel.send("11111");
                       if(ifopen)
-                       sendChannel.send( JSON.stringify({'state':tanks[mine].state,'X':tanks[mine].originX,'Y':tanks[mine].originY,'d':tanks[mine].d}));
-                        }
-            
-           else if(event.keyCode == 32 ){
-                      //ifFire=true;
-                      
+                      sendChannel.send( JSON.stringify({'state':state,'X':posX,'Y':posY}));
 
-                     var ox=tanks[mine].originX;
-                     var oy=tanks[mine].originY;
+          }
 
-                     //var ox=(tanks[mine].currentPoints[12].x+tanks[mine].currentPoints[13].x)/2;
-                     //var oy=(tanks[mine].currentPoints[1].y+tanks[mine].currentPoints[2].y)/2;
-           
-                    shots.push(new myObjects.shot(ox,oy,tanks[mine].d,tanks[mine].color));
-                    document.getElementById("fire").currentTime=0;
-                    document.getElementById("fire").play();
-                        
-                        if(ifopen)//add one shot
-                       sendChannel.send( JSON.stringify({'newShot':true,'ox':tanks[mine].originX,'oy':tanks[mine].originY,'d':tanks[mine].d}));
-                    }   
-   
+      
  };
 
 }
+
+function setArrow(s){
+
+  if(arrow[s]===0){
+       arrow[s]=1;
+       return true;}
+  else
+     return false;
+
+
+}
+
+function unsetArrow(s){
+ arrow[s]=0;
+// Object.keys(arrow).forEach(){
+
+ //}
+ if(arrow["u"]===1)
+   return "u";
+  if(arrow["r"]===1)
+   return "r";
+ if(arrow["d"]===1)
+   return "d";
+ if(arrow["l"]===1)
+   return "l";
+ return "s";
+
+
+}
+
+
+
+
+
+
+var canvas = document.getElementById('myCanvas');
+
+if (canvas.getContext) {
+    var context = canvas.getContext('2d');
+}
+
+//var vx = 10,
+  //  vy = -10,
+   // gravity = 1;
+
+
+    var r=10;
+    var posX = r;
+    var posY = r;
+    var enemyPosX=r;
+    var enemyPosY=r;
+     var vX=0,vY=0,enemyVX=0,enemyVY=0;
+     var getPos=false;
+     var arrow={u:0,r:0,d:0,l:0};
+     
+
+
+setInterval(function() {
+    context.fillStyle = "black";
+    context.fillRect(0,0,canvas.width, canvas.height);  
+    if(state==='l'){
+       vX=-5;
+       vY=0;
+     }
+    else if(state==='r'){
+       vX=5;
+       vY=0;
+     }
+    else if(state==='d'){
+       vX=0;
+       vY=5;
+     }
+    else if(state==='u'){
+       vX=0;
+       vY=-5;
+     }
+     else{
+       vX=0;
+       vY=0;
+     }
+
+   posX+=vX;
+    posY+=vY;
+  
+
+    if(posX<r)
+      posX=r;
+    if(posY<r)
+      posY=r;
+   
+
+    if(posX>canvas.width-r)
+      posX=canvas.width-r;
+    if(posY>canvas.height-r)
+      posY=canvas.height-r; 
+
+
+
+   if(getPos==false){
+   if(enemystate==='l'){
+       enemyVX=-5;
+       enemyVY=0;
+     }
+    else if(enemystate==="r"){
+       enemyVX=5;
+       enemyVY=0;
+     }
+    else if(enemystate==='d'){
+       enemyVX=0;
+       enemyVY=5;
+     }
+    else if(enemystate==='u'){
+       enemyVX=0;
+       enemyVY=-5;
+     }
+     else{
+       enemyVX=0;
+       enemyVY=0;
+     }
+    enemyPosX+=enemyVX;
+    enemyPosY+=enemyVY;
+
+     if(enemyPosX<r)
+       enemyPosX=r;
+     if(enemyPosY<r)
+       enemyPosY=r;
+
+      if(enemyPosX>canvas.width-r)
+      enemyPosX=canvas.width-r;
+    if(enemyPosY>canvas.height-r)
+      enemyPosY=canvas.height-r;
+
+   }
+   else{
+      getPos=false;
+   }
+
+
+    context.beginPath();
+    context.fillStyle = "white";
+
+    context.beginPath();
+    context.arc(posX, posY, r, 0, Math.PI*2, true); 
+    context.fill();
+
+    context.fillStyle = "blue";
+    context.beginPath();
+    context.arc(enemyPosX, enemyPosY, r, 0, Math.PI*2, true); 
+    //context.closePath();
+    context.fill();
+}, 25);
+
+</script>
+
+</body>
+</html>
