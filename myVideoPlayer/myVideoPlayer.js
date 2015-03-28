@@ -91,10 +91,11 @@
 
       myVideoPlayer.clickThumb=function(){
         //var img=this.
-          console.info("111");
+          //console.info("111");
            // myVideoPlayer.displaydesc=false;
            myVideoPlayer.mainVideo=myVideoPlayer.videos[this.id];
            myVideoPlayer.mainVideo["id"]=this.id;
+
      
           //myVideoPlayer.watchedVideos[this.id]=myVideoPlayer.videos[this.id];
           //localStorage.setItem("watchedVideos",JSON.stringify(myVideoPlayer.watchedVideos));
@@ -108,6 +109,7 @@
     };
 
     myVideoPlayer.render=function(){
+      $("#description")[0].innerHTML=myVideoPlayer.mainVideo.description;
 
         $("#mainVideo")[0].src=myVideoPlayer.mainVideo.contentURL;
       $("#mainVideo")[0].currentTime=myVideoPlayer.mainVideo.current;
@@ -197,7 +199,7 @@
       $("body")[0].onresize=function(){
        // console.info("111");
           $("#progress")[0].style.width=String($(".hook")[0].clientWidth-100)+"px";
-          console.info($("#progress")[0].style.width);
+          //deconsole.info($("#progress")[0].style.width);
         //   $("#controls")[0].style.top=String($("#mainVideo")[0].clientHeight-50)+"px";
       };
 
