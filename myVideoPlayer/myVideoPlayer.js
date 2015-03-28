@@ -141,10 +141,10 @@
 
             container[0].onclick=myVideoPlayer.clickThumb;
           var playmark=$("<img src='playicon.png' class='playmark' style='position:absolute'/>");
-          playmark[0].style.width="50%";
+          playmark[0].style.width="40%";
 
-          playmark[0].style.top=String((100/155-0.6133*0.5)/2*100)+"%";
-          playmark[0].style.left="25%";
+          playmark[0].style.top=String((100/155-0.6133*0.4)/2*100)+"%";
+          playmark[0].style.left="30%";
            console.info(playmark[0].clientWidth);
 
              container.append(playmark);
@@ -166,10 +166,10 @@
           container.append(img);
            container[0].onclick=myVideoPlayer.clickThumb;
           var playmark=$("<img src='playicon.png' class='playmark' style='position:absolute'/>");
-          playmark[0].style.width="50%";
+          playmark[0].style.width="40%";
 
-          playmark[0].style.top=String((100/155-0.6133*0.5)/2*100)+"%";
-          playmark[0].style.left="25%";
+          playmark[0].style.top=String((100/155-0.6133*0.4)/2*100)+"%";
+          playmark[0].style.left="30%";
            console.info(playmark[0].clientWidth);
 
              container.append(playmark);
@@ -219,6 +219,15 @@
               $("#description").removeClass("display");
              // $("#description")[0].innerHTML=myVideoPlayer.mainVideo.description;
 
+           }
+
+           for(var i=0;i<$("#mainVideo")[0].buffered.length;i++){
+
+            if($("#mainVideo")[0].buffered.start(i)<=$("#mainVideo")[0].currentTime && $("#mainVideo")[0].buffered.end(i)>=$("#mainVideo")[0].currentTime){
+              var l=($("#mainVideo")[0].buffered.end(i)-$("#mainVideo")[0].currentTime)/$("#mainVideo")[0].duration*$("#progress")[0].clientWidth;
+              $("#bufferedBar")[0].style.width=String(l)+"px";
+              console.info($("#bufferedBar")[0].style.width);
+            }
            }
 
        },30);
@@ -351,6 +360,8 @@
         $("#videoContainer")[0].onmouseout=function(){
            $("#controls").removeClass("display");
        };
+
+
 
        
 

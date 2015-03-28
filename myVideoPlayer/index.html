@@ -142,6 +142,8 @@
       width:0;
       height: 50px;
       background-color: red; 
+      //display:inline-block;
+      float:left;
      }
 
    #playOrPause button{
@@ -181,6 +183,16 @@
   opacity: 0.5;
 }
 
+#bufferedBar{
+  //display:;
+  background-color:white;
+  width: 0px;
+   //display:inline-block;
+   float:left;
+   height: 50px;
+
+}
+
 
     </style>
   </head>
@@ -193,7 +205,10 @@
          </video>
          <div id="controls" >
             <div id="playOrPause"><button class="button"type="button" class="btn btn-lg" aria-label="Left Align"><span  class="glyphicon glyphicon-play" aria-hidden="true"></span> </button></div>
-            <div id="progress"><div id="progressBar"></div></div>
+            <div id="progress">
+               <div id="progressBar"></div>
+               <div id="bufferedBar"></div>
+           </div>
             <div id="theater"><button class="button"type="button" class="btn btn-lg" aria-label="Left Align"><span  class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span> </button></div>
          </div>
          <div id="description"></div>
