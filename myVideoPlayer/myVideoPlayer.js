@@ -145,7 +145,7 @@
 
            playmark[0].style.top=String((1-0.7333*0.4*168/109)/2*100)+"%";
           playmark[0].style.left="30%";
-           console.info(playmark[0].clientWidth);
+          // console.info(playmark[0].clientWidth);
 
              container.append(playmark);
             $("#thumbContainer").append(container);
@@ -170,7 +170,7 @@
 
           playmark[0].style.top=String((1-0.7333*0.4*168/109)/2*100)+"%";
           playmark[0].style.left="30%";
-           console.info(playmark[0].clientWidth);
+           //console.info(playmark[0].clientWidth);
 
              container.append(playmark);
             $("#thumbContainer").append(container);
@@ -226,7 +226,7 @@
             if($("#mainVideo")[0].buffered.start(i)<=$("#mainVideo")[0].currentTime && $("#mainVideo")[0].buffered.end(i)>=$("#mainVideo")[0].currentTime){
               var l=($("#mainVideo")[0].buffered.end(i)-$("#mainVideo")[0].currentTime)/$("#mainVideo")[0].duration*$("#progress")[0].clientWidth;
               $("#bufferedBar")[0].style.width=String(l)+"px";
-              console.info($("#bufferedBar")[0].style.width);
+              //console.info($("#bufferedBar")[0].style.width);
             }
            }
 
