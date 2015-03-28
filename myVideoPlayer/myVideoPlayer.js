@@ -143,7 +143,7 @@
           var playmark=$("<img src='playicon.png' class='playmark' style='position:absolute'/>");
           playmark[0].style.width="40%";
 
-          playmark[0].style.top=String((100/155-0.6133*0.4)/2*100)+"%";
+           playmark[0].style.top=String((109/168-0.6133*0.4)/2*100)+"%";
           playmark[0].style.left="30%";
            console.info(playmark[0].clientWidth);
 
