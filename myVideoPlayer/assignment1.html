@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+	<head>
+	<style>
+
+	h3{
+		text-align: center;
+	}
+
+		.ingre{
+		float:left;
+		width:15%;
+        height:160px;
+		margin:2% 2%;
+
+	}
+	.ingres{
+		//float:left;
+	}
+	.recipe{
+	   padding:3%;
+       width:100%;
+       margin:3% 0;
+		float: left;
+	}
+
+	#cakeHook{
+       width:80%;
+       margin:3% auto;
+       display: none;
+	}
+
+	.supplieringres{
+		 padding:3%;
+       width:100%;
+       margin:3% 0;
+		float: left;
+		border: 2px solid grey;
+	}
+
+	.sup{
+       background-color: blue;
+       border: 2px solid blue;
+       border-radius:5px;
+       text-align: center;
+	}
+
+     #loading{
+     	width:80%;
+     	background-color: blue;
+     	border-radius:5px;
+        border: 2px solid blue;
+        margin: 5% auto;
+        display:none;
+        text-align: center;
+        font-size: 2.5em;
+     }
+
+     #loading p{
+     	margin:250px 40%;
+     	width:20%;
+     	
+     }
+
+     #logo{
+     	width:200px;
+     	position:relative;
+     	margin:10px auto;
+     	-webkit-animation:myfirst 5s;
+     	-webkit-animation-iteration-count:1;
+     }
+
+     button{
+     	-webkit-animation:mysecond 5s;
+     	-webkit-animation-iteration-count:infinite;
+     	width:200px;
+     	height:100px;
+     	border-radius:5px;
+
+     }
+   
+
+   @-webkit-keyframes myfirst {
+    0%  {left: 0px; -webkit-transform:rotate(0deg);}
+    25%  {left:20px;-webkit-transform:rotate(10deg);}
+    50%  {left:10px;-webkit-transform:rotate(15deg);}
+    100% {left:5px;-webkit-transform:rotate(0deg);}
+  }
+
+  @-webkit-keyframes mysecond {
+    0%  {background-color: red; width:200px;}
+    25%  {background-color: yellow; width:210px;}
+    50%  {background-color: blue;width:200px; }
+    100% {background-color: green; width:190px; }
+  }
+
+
+
+
+	</style>
+	<title>Cake Baby Bakery</title>
+	<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+	
+	<link href="css/bootstrap.min.css" rel="stylesheet"/>
+	<link href="css/basica1.css" rel="stylesheet"/>
+	</head>
+	<body>
+	    <div id="logo"><img width="200" src="logo.png"/></div>
+	    <div id="loading"><p>Loading...</p></div>
+		<div id="cakeHook" ></div>
+		<script src="a1.js"></script>
+		<script>
+
+		a1.start($("#cakeHook"),"a1data.json");
+
+		</script>	
+
+
+	</body>
+</html>
