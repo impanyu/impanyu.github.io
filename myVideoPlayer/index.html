@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>IIT News</title>
+    <!-- Bootstrap core CSS -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+      <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <style>
+    .starter-template {
+    	padding: 40px 15px;
+		  text-align: center;
+	   }
+
+     body{
+       transition: background-color 2s;
+      //background-color: white;
+     }
+      body.theater{
+       background-color: black;
+       
+     }
+     
+     .hook{
+      width:50%;
+       margin:50px auto;
+       //position:relative;
+       transition: width 2s;
+     }
+
+      .hook.theater{
+       width:80%;
+
+     }
+
+     #videoContainer{
+  
+       position:relative;
+  
+     }
+
+     
+
+     #mainVideo{
+      width:100%;
+      display: block;
+     }
+
+
+
+     .hook img{
+      //margin:0 5px;
+      width:100%;
+      //height:190px;
+      
+     }
+
+    
+
+     #description{
+      width:0;
+      height:20px;
+      transition:width 2s;
+      overflow: hidden;
+      text-align: center;
+      position: absolute;
+      bottom:50px;
+      background-color: yellow;
+      opacity:0.7;
+     }
+
+     #description.display{
+        width:100%;
+
+     }
+
+
+      #controls.display{
+      width:100%;
+      height:50px;
+      position:absolute;
+      bottom:0;
+      background-color:#4D4D4E;
+      //background-color: white;
+      opacity: 0.6;
+      //display:block;
+
+     }
+
+     #controls{
+      width:100%;
+      height:50px;
+      position:absolute;
+      bottom:0;
+      background-color:#4D4D4E;
+      //background-color: white;
+      opacity: 0;
+      transition:opacity 1s;
+      //display:none;
+     }
+
+     #playOrPause{
+        width:50px;
+        height:50px;
+        float:left;
+     }
+
+
+     #theater{
+       width:50px;
+       height:50px;
+       //float:left;
+       position: absolute;
+       bottom:0;
+       right:0;
+     }
+
+     #progress{
+       height:50px;
+       float:left;
+     }
+
+     #progressBar{
+      width:0;
+      height: 50px;
+      background-color: red; 
+     }
+
+   #playOrPause button{
+     height:50px;
+     width:50px;
+   }
+
+  #theater button{
+     height:50px;
+     width:50px;
+   }
+
+
+
+
+ #playOrPause span{
+  
+
+}
+
+#thumbContainer{
+  width:100%;
+  transition: opacity 2s;
+}
+
+#thumbContainer.theater{
+  opacity: 0;
+  //display:none;
+}
+
+.playmark{
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.playmark.display{
+  opacity: 0.5;
+}
+
+
+    </style>
+  </head>
+
+  <body>
+    <div class="contain">
+      <div class="hook" >
+        <div id="videoContainer">
+         <video id="mainVideo" >
+         </video>
+         <div id="controls" >
+            <div id="playOrPause"><button class="button"type="button" class="btn btn-lg" aria-label="Left Align"><span  class="glyphicon glyphicon-play" aria-hidden="true"></span> </button></div>
+            <div id="progress"><div id="progressBar"></div></div>
+            <div id="theater"><button class="button"type="button" class="btn btn-lg" aria-label="Left Align"><span  class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span> </button></div>
+         </div>
+         <div id="description"></div>
+        </div>
+        <div id="thumbContainer"></div>
+         
+
+      </div>
+
+    </div><!-- /.container -->
+    <script src="myVideoPlayer.js"></script>
+    <script>
+       
+      myVideoPlayer.start("clips.json");
+       //console.info( String($("#mainVideo")[0].clientHeight-50)+"px");
+       
+
+    </script> 
+  </body>
+
+</html>
