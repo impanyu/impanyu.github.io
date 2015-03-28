@@ -95,6 +95,7 @@
            // myVideoPlayer.displaydesc=false;
            myVideoPlayer.mainVideo=myVideoPlayer.videos[this.id];
            myVideoPlayer.mainVideo["id"]=this.id;
+           console.info(this.id);
 
      
           //myVideoPlayer.watchedVideos[this.id]=myVideoPlayer.videos[this.id];
@@ -128,7 +129,6 @@
 
     $(".hook")[0].appendChild($("<div id='thumbContainer'></div>")[0]);
    
-
 
       for(var key in myVideoPlayer.videos){//first append unwatched videos
         if(!myVideoPlayer.watchedVideos[key] && myVideoPlayer.mainVideo["id"]!=key){
