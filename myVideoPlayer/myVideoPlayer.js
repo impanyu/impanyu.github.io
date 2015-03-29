@@ -127,7 +127,11 @@
      //$("#description").removeClass("display");
      $(".hook")[0].removeChild($("#thumbContainer")[0]);
 
-    $(".hook")[0].appendChild($("<div id='thumbContainer'></div>")[0]);
+    
+    if(myVideoPlayer.isTheater)
+      $(".hook")[0].appendChild($("<div id='thumbContainer' class='theater'></div>")[0]);
+    else
+      $(".hook")[0].appendChild($("<div id='thumbContainer'></div>")[0]);
    
 
       for(var key in myVideoPlayer.videos){//first append unwatched videos
