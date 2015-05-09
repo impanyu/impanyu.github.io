@@ -132,7 +132,7 @@ function send(msg) {
 
 function createPC() {
   var stunuri = true,
-      turnuri = false,
+      turnuri = true,
       myfalse = function(v) {
                   return ((v==="0")||(v==="false")||(!v)); },
       config = new Array();
@@ -157,11 +157,29 @@ function createPC() {
       // bug in Chrome that causes STUN server responses to be
       // ignored, so we use TURN server that also does STUN
       config.push({"url":"turn:user@turn.webrtcbook.com",
-                   "credential":"test"});
+             "credential":"test"});
+      /* config.push({
+      'url': 'turn:146.148.80.209:3478?transport=udp',
+      "password": "KAwVq/0jk885bgz4pLp4geMNPno=",
+      "username": "1426137134:543308582"});*/
+       /*
+      config.push({
+      'url': 'turn:192.158.29.39:3478?transport=udp',
+      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+      'username': '28224511:1379330808'});
+      config.push({
+      'url': 'turn:192.158.29.39:3478?transport=tcp',
+      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+      'username': '28224511:1379330808'});*/
+    
     } else {
       // this is our TURN-only TURN server
+    /*  config.push({
+      'url': 'turn:146.148.80.209:3478?transport=udp',
+      "password": "KAwVq/0jk885bgz4pLp4geMNPno=",
+      "username": "1426137134:543308582"});*/
       config.push({"url":"turn:user@turn-only.webrtcbook.com",
-                   "credential":"test"});
+                "credential":"test"});
     }
   }
   console.log("config = " + JSON.stringify(config));
@@ -225,8 +243,8 @@ pc.ondatachannel = function(event) {
      document.getElementById("fire").currentTime=0;
       document.getElementById("fire").play();
    }
-  // else if(data.myscore)
-    // tanks[enemy].score=data.myscore;
+    else if(data.myscore<=100)
+     tanks[mine].score=data.myscore;
    else{
     tanks[enemy].state=data.state;
     tanks[enemy].originX=data.X;

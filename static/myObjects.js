@@ -401,7 +401,8 @@
                   if(this.currentPoints[0].x-tanks[mine].originX<=15 && this.currentPoints[0].x-tanks[mine].originX>=-15 
                   	&&this.currentPoints[0].y-tanks[mine].originY<=15 && this.currentPoints[0].y-tanks[mine].originY>=-15 ){
                   	  tanks[mine].marks.push(new myObjects.mark(tanks[mine].originX,tanks[mine].originY));
-                  	  tanks[mine].score-=5;
+                  	  //tanks[mine].score-=5;
+                  	  //sendChannel.send( JSON.stringify({'myscore':tanks[mine].score}));
                   	  return true;
                     }
                   	  // tanks[mine].marks.push(new myObjects.mark(100,100));
@@ -411,6 +412,7 @@
                   	&&this.currentPoints[0].y-tanks[enemy].originY<=15 && this.currentPoints[0].y-tanks[enemy].originY>=-15 ){
                   	  tanks[enemy].marks.push(new myObjects.mark(tanks[enemy].originX,tanks[enemy].originY));
                   	  tanks[enemy].score-=5;
+                  	   sendChannel.send( JSON.stringify({'myscore':tanks[enemy].score}));
                   	  return true;
                   	}
           	    }

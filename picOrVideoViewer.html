@@ -27,6 +27,29 @@ header,nav, section,article,footer
 {border:1px solid grey; margin:5px; padding:8px;}
 nav ul {margin:0; padding:0;}
 nav ul li {display:inline; margin:5px;}
+html{
+  height:100%;
+}
+body {
+  height:100%;
+}
+#mask{
+   position:fixed;
+   //top:0;
+   height: 100%;
+   width:100%;
+   box-sizing: border-box;
+   background-color:black;
+   opacity:0;
+   //z-index: 10;
+   transition:opacity 0.5s;
+   //padding
+   //display:none;
+}
+
+#mask.active{
+  opacity: 0.2;
+}
 </style>
 </head>
 
@@ -74,10 +97,12 @@ and the most populous metropolitan area in the world.</p>
 
 <form>
 <input type="file" id="fileinput"  class="btn btn-primary btn-lg" style="width:100%" name="picorvideo" accept="image/*, video/*"/>
-<input type="text" id="url  url" />
-<input type="button" id="sub sub"   class="btn btn-primary btn-lg" value="submit"/>
+<!--<input type="text" id="url  url" />-->
+<!--<input type="button" id="sub sub"   class="btn btn-primary btn-lg" value="submit"/>-->
 <!-- Standard button -->
 </form>
+
+<div id="mask"></div>
 
 
 
@@ -86,6 +111,7 @@ and the most populous metropolitan area in the world.</p>
 
 
 <div id="blackcover" style="background:#1A1A1A; opacity:0.7; position:fixed; top:0; left:0;width: 100%;height:100%; display:none"></div>
+
 
 <script>
 //var canvas = document.getElementById('myCanvas');
@@ -97,6 +123,39 @@ and the most populous metropolitan area in the world.</p>
 //var img = new Image();
 
 
+$("#mask")[0].ondragover=  function(){
+  $("#mask").addClass("active");
+  return false;
+};
+
+$("#mask")[0].ondragleave=  function(){
+  $("#mask").removeClass("active");
+  return false;
+};
+
+$("#mask")[0].ondrop=function(e){
+   e.stopPropagation();
+   e.preventDefault();
+   e = e || window.event;
+  var files = e.dataTransfer.files;
+  if(files)  readFile(files[0]);
+  $("#mask").removeClass("active");
+
+};
+
+$("#blackcover")[0].ondrop=function(e){
+   e.stopPropagation();
+   e.preventDefault();
+   return false;
+};
+
+$("#blackcover")[0].ondragover=  function(){
+ e.preventDefault();
+  return false;
+};
+
+
+
 document.getElementById("fileinput").onchange = function(e){
 
      if(!e.target.files[0])
@@ -106,12 +165,12 @@ document.getElementById("fileinput").onchange = function(e){
    
      console.log(e.target.files[0].type);
 };
-
+/*
 document.getElementById("sub sub").onclick = function(){
   alert("qwe");
   //readFile(document.getElementById("url").value);
 };
-
+*/
 
 
 function readFile(file){
@@ -120,6 +179,8 @@ function readFile(file){
 var imageType=/image.*/;
 var videoType=/video.*/;
 var imgorVideo;
+
+
 var container=document.createElement("div");
 
 container.style.position="relative";
@@ -212,6 +273,17 @@ document.getElementById("imgarea").appendChild(container);
       zoompic.style.top=0;    
        zoompic.style.left=0;  
       //zoompic.style.opacity=1;
+
+      zoompic.ondrop=function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+      };
+
+     zoompic.ondragover=  function(){
+
+      return false;
+     };
       document.getElementById("b").appendChild(zoompic);
     
       
@@ -298,7 +370,17 @@ else if(file.type.match(videoType)){
    // window.URL.revokeObjectURL(this.src);
     
     //imgorVideo.width=500;
-    container.style.height="300px";
+      container.style.height="300px";
+      imgorVideo.ondrop=function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+      };
+
+     imgorVideo.ondragover=  function(){
+
+      return false;
+     };
         container.appendChild(imgorVideo);
 
 
