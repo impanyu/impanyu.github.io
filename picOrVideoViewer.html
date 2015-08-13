@@ -174,6 +174,8 @@ document.getElementById("sub sub").onclick = function(){
 
 
 function readFile(file){
+
+  console.log(file.type);
 	     
 //  var reader = new FileReader();
 var imageType=/image.*/;
@@ -320,6 +322,7 @@ if(typeof file==="string")//if file is a url
 }
 
 else if(file.type.match(imageType)){
+
   
    imgorVideo= document.createElement("img");
    //imgorVideo.style.margin="5px";
@@ -359,11 +362,15 @@ else if(file.type.match(videoType)){
   	
 
 }
+else
+  return;
 
     //    myVideo.src = window.URL.createObjectURL();
       //}
     //  myVideo.play();
   imgorVideo.height=300;
+
+
   
   // imgorVideo.style.display="inline";
 //imgorVideo.onload = function(e) {
