@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>Space Demo</title>
+    <link href="stylesheets/screen.css" media="all" rel="stylesheet" type="text/css"/>
+    <script language="javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script><script language="javascript" src="javascripts/jquery.hotkeys.js" type="text/javascript"></script><script language="javascript" src="javascripts/key_status.js" type="text/javascript"></script><script language="javascript" src="javascripts/util.js" type="text/javascript"></script><script language="javascript" src="javascripts/sprite.js" type="text/javascript"></script><script language="javascript" src="javascripts/sound.js" type="text/javascript"></script>
+    <style type="text/css">
+    #can{
+      width:1000px;
+      margin:0 auto;
+
+    }
+    </style>
+
+  </head>
+  <body>
+    <h1>Space Demo</h1>
+    <div id="can"></div>
+    <script type='text/javascript'>
+      //<![CDATA[
+        var CANVAS_WIDTH = 1000;
+        var CANVAS_HEIGHT = 800;
+        var FPS = 30;
+        var BOX_WIDTH=1000;
+        var BOX_HEIGHT=50;
+        var graspedSatellite=null;
+
+        function distance(a,b){
+          return Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
+        }
+
+        var sun={
+          x:CANVAS_WIDTH/2,
+          y:CANVAS_HEIGHT/2,
+          r:30,
+          m:10000, 
+          color:"white",
+          draw: function(){
+            canvas.beginPath();
+            canvas.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+            canvas.fillStyle=this.color;
+            canvas.fill();
+          } 
+        }
+
+        var satellites=[];
+
+        function satellite(x,y,r,color){
+          this.originalX=x;
+          this.originalY=y;
+          this.x=x;
+          this.y=y;
+          this.v={};
+          this.g=0;
+          this.a=0;
+          this.orbitR=0;
+          this.positions=[];
+          this.r=r;
+          this.state="static";
+          this.count=0;
+          this.clockwise=true;
+          this.active=true;
+          
+          this.color=color;
+          //this.angle=0;
+
+          this.draw=function(){
+             canvas.beginPath();
+             //canvas.strokeStyle="black";
+            canvas.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+            canvas.fillStyle=this.color;
+            canvas.fill();
+             canvas.closePath();
+          };
+
+          this.update=function(){
+            if(this.state==="static") return;
+
+            else if(this.state==="inbox"){
+              var d=Math.sqrt((this.originalX-this.x)*(this.originalX-this.x)+(this.originalY-this.y)*(this.originalY-this.y));
+              if(d<2.5) {
+                this.x=this.originalX;
+                this.y=this.originalY;
+                this.state="static";
+                this.v.x=0;
+                this.v.y=0;
+                return;
+              }
+              //this.x+=0.5*(this.originalX-this.x)/d;
+              //this.y+=0.5*(this.originalY-this.y)/d;
+              this.x+=this.v.x;
+              this.y+=this.v.y;
+            }
+            else if(this.state==="grasped"){
+              //this.x=
+              //this.y=
+              //this.positions.push({x:this.x,y:this.y});
+            
+
+            }
+            else{
+              //console.info("here");
+            this.orbitR=distance(this,sun);
+            if(this.orbitR<sun.r)
+              this.active=false;
+            //console.info(this.orbitR);
+            this.g=sun.m/this.orbitR/this.orbitR;
+            //var vv2=(this.v.x*this.v.x+this.v.y*this.v.y)-((this.x-sun.x)*this.v.x+(this.y-sun.y)*this.v.y)*((this.x-sun.x)*this.v.x+(this.y-sun.y)*this.v.y)/this.orbitR/this.orbitR;//this.a;//this.orbitR/this.orbitR;//切向速度平方
+            this.a=(this.v.x*this.v.x+this.v.y*this.v.y) /this.orbitR;
+            //console.info(this.a);
+            //this.angle=  sun.x-this.x
+            var vv={};
+            if(this.clockwise){
+              vv.x=-this.v.y;
+              vv.y=this.v.x;
+
+            }
+            else{
+              vv.x=this.v.y;
+              vv.y=-this.v.x;
+            }
+             vv.d=Math.sqrt(vv.x*vv.x+vv.y*vv.y);
+             if(vv.d!=0){
+             vv.x=vv.x/vv.d;
+             vv.y=vv.y/vv.d;
+           }
+             
+            this.v.x+=(-this.g)*(this.x-sun.x)/this.orbitR;//+this.a*vv.x;
+            this.v.y+=(-this.g)*(this.y-sun.y)/this.orbitR;//+this.a*vv.y;
+            this.x+=this.v.x;
+            this.y+=this.v.y;
+            //console.info(this.v.x);
+            //console.info(this.v.y);
+            }
+          };
+        }
+
+        //for(var i=0;i<5;i++){
+
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.99,"#0099FF"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*2,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.95,"red"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*3,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.93,"green"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*4,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.91,"yellow"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*5,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.90,"blue"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*6,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.85,"grey"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*7,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.8,"purple"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*8,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.75,"white"));
+
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*9,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.72,"#000099"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*10,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.7,"#660066"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*11,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.68,"#CCFFFF"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*12,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.66,"#CCFF33"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*13,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.65,"#FF9900"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*14,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.6,"#999966"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*15,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.55,"pink"));
+
+            satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*16,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.53,"#CC3300"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*17,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.5,"#00CC66"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*18,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.45,"#CCFF99"));
+          satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*19,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.4,"#9966FF"));
+          //satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*13,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.35,"blue"));
+          //satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*14,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.35,"grey"));
+          //satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/20*15,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.35,"pink"));
+          //satellites.push(new satellite(CANVAS_WIDTH-BOX_WIDTH/16*8,CANVAS_HEIGHT-BOX_HEIGHT/2,BOX_HEIGHT/2*0.35,"white"));
+       // }
+        //console.info(satellites);
+        
+       
+     
+        
+        var canvasElement = $("<canvas width='" + CANVAS_WIDTH + 
+          "' height='" + CANVAS_HEIGHT + "'></canvas");
+        var canvas = canvasElement.get(0).getContext("2d");
+        canvasElement.appendTo('#can');
+        
+        setInterval(function() {
+          update();
+          draw();
+        }, 1000/FPS);
+        
+        function update() {
+           satellites.forEach(function(s){
+
+             s.update();
+          });
+          satellites= satellites.filter(function(s){
+              return s.active;
+          });
+
+
+        }
+        
+       
+        
+      
+        function draw() {
+          canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          canvas.fillStyle='black';
+          canvas.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+
+          canvas.strokeStyle="white";
+          canvas.lineWidth=1;
+          canvas.moveTo(CANVAS_WIDTH,CANVAS_HEIGHT-BOX_HEIGHT);
+          canvas.lineTo(CANVAS_WIDTH -BOX_WIDTH,CANVAS_HEIGHT-BOX_HEIGHT);
+          canvas.lineTo(CANVAS_WIDTH- BOX_WIDTH ,CANVAS_HEIGHT);
+          canvas.stroke();
+
+          sun.draw();
+
+          satellites.forEach(function(s){
+
+             s.draw();
+          });
+
+
+
+          
+         
+        }
+
+
+        canvasElement[0].onmousedown=function(event){
+          var x=event.clientX;
+          var y=event.clientY;
+
+          var rect=canvasElement[0].getBoundingClientRect();
+          satellites.forEach(function(s){
+            if(s.state==="static" && Math.sqrt((x-s.x-rect.left)*(x-s.x-rect.left)+(y-s.y-rect.top)*(y-s.y-rect.top))<=s.r){
+             
+                //console.info(x-s.x-rect.left);
+                //console.info(y-s.y-rect.top);
+                //console.info((x-s.x-rect.left)^2+(y-s.y-rect.top)^2);
+                //console.info(s.r);
+
+                s.state="grasped";
+                graspedSatellite=s;
+                s.positions=[];
+            
+            }
+               
+          });
+          
+        }
+
+        canvasElement[0].onmouseup=function(event){
+          if(!graspedSatellite) return;
+          var x=event.clientX;
+          var y=event.clientY;
+
+          var rect=canvasElement[0].getBoundingClientRect();
+
+          if(x-rect.left>=CANVAS_WIDTH-BOX_WIDTH  && x-rect.left<=CANVAS_WIDTH && y-rect.top<=CANVAS_HEIGHT && y-rect.top>=CANVAS_HEIGHT-BOX_HEIGHT){
+           graspedSatellite.state="inbox";
+           graspedSatellite.x=x-rect.left;
+           graspedSatellite.y=y-rect.top;
+           // this.x+=0.5*(this.originalX-this.x)/d;
+           // this.y+=0.5*(this.originalY-this.y)/d;
+           var d=Math.sqrt((graspedSatellite.originalX- graspedSatellite.x)*(graspedSatellite.originalX-graspedSatellite.x)+(graspedSatellite.originalY-graspedSatellite.y)*(graspedSatellite.originalY-graspedSatellite.y));
+           graspedSatellite.v.x=3.5*(graspedSatellite.originalX-graspedSatellite.x)/d;
+           graspedSatellite.v.y=3.5*(graspedSatellite.originalY-graspedSatellite.y)/d;
+          }
+         else{
+           graspedSatellite.state="flying";
+             if(graspedSatellite.positions){
+              graspedSatellite.v.x=0;//=(graspedSatellite.positions[graspedSatellite.positions.length-1].x-graspedSatellite.positions[0].x)/graspedSatellite.positions.length;
+             graspedSatellite.v.y=-5;//(graspedSatellite.positions[graspedSatellite.positions.length-1].y-graspedSatellite.positions[0].y)/graspedSatellite.positions.length;
+             graspedSatellite.x=x-rect.left;
+             graspedSatellite.y=y-rect.top;
+
+             if (graspedSatellite.v.x*(sun.y-graspedSatellite.y)-(sun.x-graspedSatellite.x)*graspedSatellite.v.y<0) //counterclockwise
+                    graspedSatellite.clockwise=false; 
+             else
+                     graspedSatellite.clockwise=true;
+
+         // console.info(satellites[0].x);
+          //console.info(satellites[0].y);
+           }
+             else
+               graspedSatellite.v=0;
+         }
+
+          graspedSatellite=null;
+        }
+
+
+         canvasElement[0].onmousemove=function(event){
+          if(!graspedSatellite) return;
+          var x=event.clientX;
+          var y=event.clientY;
+
+
+
+          var rect=canvasElement[0].getBoundingClientRect();
+          //graspedSatellite.positions.push({x:graspedSatellite.x,y:graspedSatellite.y});
+          //if(graspedSatellite.positions==10) graspedSatellite.positions.pop();
+
+          graspedSatellite.positions.push({x:graspedSatellite.x,y:graspedSatellite.y});
+            if(graspedSatellite.positions.length==10) {graspedSatellite.positions.pop();
+              console.info("pop");
+             }
+          graspedSatellite.x=x-rect.left;
+          graspedSatellite.y=y-rect.top;
+
+
+         }
+
+        
+        function collides(a, b) {
+          return a.x < b.x + b.width &&
+            a.x + a.width > b.x &&
+            a.y < b.y + b.height &&
+            a.y + a.height > b.y;
+        }
+        
+        /*function handleCollisions() {
+          playerBullets.forEach(function(bullet) {
+            enemies.forEach(function(enemy) {
+              if(collides(bullet, enemy)) {
+                enemy.explode();
+                bullet.active = false;
+              }
+            });
+          });
+        
+          enemies.forEach(function(enemy) {
+            if(collides(enemy, player)) {
+              enemy.explode();
+              player.explode();
+            }
+          });
+        }*/
+     
+    </script>
+  </body>
+</html>
