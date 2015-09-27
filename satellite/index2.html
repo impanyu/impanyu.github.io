@@ -24,7 +24,7 @@
   <body>
     <h1>Space Demo</h1>
     <form>
-      <strong>Total stars:</strong> <input type="number" id="total" value="1000" min="0" max="6000">&nbsp
+      <strong>Total stars:</strong> <input type="number" id="total" value="5000" min="0" max="6000">&nbsp
     <strong>Gravity:</strong> <input type="number" id="gravity" name="gravity" value="1000" min="500" max="50000">&nbsp
     <strong>X Axis Initial Speed:</strong> <input type="number" id="xv" name="xv" value="1" min="0" max="10">&nbsp
     <strong>Y Axis Initial Speed:</strong> <input type="number" id="yv" name="yv" value="1" min="0" max="10">&nbsp
@@ -184,7 +184,7 @@
             else{
               //console.info("here");
             this.orbitR=distance(this,sun);
-            if(this.orbitR<8)
+            if(this.orbitR<=Math.sqrt(Gravity)/3)
               this.active=false;
             //console.info(this.orbitR);
             this.g=sun.m/this.orbitR/this.orbitR;
@@ -410,6 +410,7 @@
            if( Radius<0) Radius=0;
            if(Radius>=20) Radius=20;
            if(Total>=10000) Total=10000;
+           sun.m=Gravity;
 
            
 
