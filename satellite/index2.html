@@ -187,8 +187,10 @@
             else{
               //console.info("here");
             this.orbitR=distance(this,sun);
-            if(this.orbitR<=Math.sqrt(Gravity)/3)
+            if(this.orbitR<=Math.sqrt(Gravity)/3){
               this.active=false;
+              sun.gravity+=1;
+            }
             //console.info(this.orbitR);
             this.g=sun.m/this.orbitR/this.orbitR;
             //var vv2=(this.v.x*this.v.x+this.v.y*this.v.y)-((this.x-sun.x)*this.v.x+(this.y-sun.y)*this.v.y)*((this.x-sun.x)*this.v.x+(this.y-sun.y)*this.v.y)/this.orbitR/this.orbitR;//this.a;//this.orbitR/this.orbitR;//切向速度平方
@@ -439,10 +441,6 @@
        
 
         }
-
-
-
-
            gameInterval=setInterval(function() {
             //console.info(satellites[0].x);
                update();
