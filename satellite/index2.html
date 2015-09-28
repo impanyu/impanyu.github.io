@@ -29,8 +29,10 @@
     <strong>X Axis Initial Speed:</strong> <input type="number" id="xv" name="xv" value="1" min="0" max="10">&nbsp
     <strong>Y Axis Initial Speed:</strong> <input type="number" id="yv" name="yv" value="1" min="0" max="10">&nbsp
     <strong>Random Speed: </strong><input type="radio" id="randomY" name="random" value="Yes" > <strong>Yes</strong>
-                 <input type="radio"  id="randomN"  name="random" value="No" checked> <strong>No</strong><br><br>
+                                   <input type="radio"  id="randomN"  name="random" value="No" checked> <strong>No</strong>&nbsp
+    <strong>Perfect Galaxy</strong><input type="checkbox"  id="perfect"  name="perfect" value="perfect" > <br><br>
     <strong>Star Average Radius: </strong> <input type="number" id="radius" name="radius" value="2" min="1" max="20">&nbsp
+
     <input type="reset" value="Reset">
     <input type="button" value="Start New" onclick="start()">
     <input type="button" value="Stop/Continue" onclick="stopOrContinue()">
@@ -65,6 +67,7 @@
         var YInitialSpeed;
          var satellites=[];
          var Radius;
+         var ifPerfect;
 
 
 
@@ -401,15 +404,18 @@
            //initialize..
            
 
-            ifRandom=$("input:radio[name=random]:checked").val()=="Yes";
+            ifRandom=$("input:radio[name=random]:checked").val();
             Total= parseInt(total.value);
             Gravity=parseInt(gravity.value);
             XinitialSpeed=parseInt(xv.value);
             YInitialSpeed=parseInt(yv.value);
             Radius=parseInt(radius.value);
+            ifPerfect=$("#perfect").attr("checked");
            if( Radius<0) Radius=0;
            if(Radius>=20) Radius=20;
            if(Total>=10000) Total=10000;
+           if(ifPerfect)
+            Gravity=2000;
            sun.m=Gravity;
 
            
@@ -418,14 +424,18 @@
            for(var i=0;i<Total;i++){
           //console.info(Total);
           /* satellites.push(new satellite(sun.x- CANVAS_WIDTH/4 +Math.random()*CANVAS_WIDTH/2,sun.y - CANVAS_HEIGHT/4+Math.random()*CANVAS_HEIGHT/2,Math.random()*3, colors[ Math.floor( Math.random()*colors.length)], -5+Math.random()*10,-5+Math.random()*10 ));*/
-            if(ifRandom){
+          if(ifPerfect)
+          satellites.push(new satellite(CANVAS_WIDTH/4,CANVAS_HEIGHT/4,Math.random()*Radius, colors[ Math.floor( Math.random()*colors.length)],      
+            7*Math.random() ,  Math.random()/10));
+          else if(ifRandom=="Yes"){
               XinitialSpeed=Math.abs(XinitialSpeed);
               YInitialSpeed=Math.abs(YInitialSpeed);
              satellites.push(new satellite(Math.random()*CANVAS_WIDTH,Math.random()*CANVAS_HEIGHT,Math.random()*Radius, colors[ Math.floor( Math.random()*colors.length)], -XinitialSpeed+XinitialSpeed*2*Math.random(),-YInitialSpeed+YInitialSpeed*2*Math.random()));
              
             }
-            else
+            else if(ifRandom=="No")
           satellites.push(new satellite(Math.random()*CANVAS_WIDTH,Math.random()*CANVAS_HEIGHT,Math.random()*Radius, colors[ Math.floor( Math.random()*colors.length)], XinitialSpeed,YInitialSpeed));
+         
        
 
         }
