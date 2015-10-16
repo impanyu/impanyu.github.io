@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg602" space="preserve" height="250pt" width="400pt">
+  <defs id="defs604">
+    <linearGradient id="linearGradient624">
+      <stop id="stop625" stop-color="#fff" offset="0"/>
+      <stop id="stop626" stop-color="#000047" offset="1"/>
+    </linearGradient>
+    <linearGradient id="linearGradient621">
+      <stop id="stop622" stop-color="#fff" offset="0"/>
+      <stop id="stop623" stop-color="#0007ee" offset="1"/>
+    </linearGradient>
+    <radialGradient id="radialGradient618" xlink:href="#linearGradient621" cy=".45802" cx=".55224" r=".76215"/>
+    <linearGradient id="linearGradient619" y2=".43284" spreadMethod="reflect" y1=".43284" x2="1.0149" x1=".49253">
+      <stop id="stop616" stop-color="#7f7f7f" offset="0"/>
+      <stop id="stop617" stop-color="#191919" offset="1"/>
+    </linearGradient>
+    <radialGradient id="radialGradient627" xlink:href="#linearGradient621" cy=".47446" cx=".55075" r=".92296"/>
+    <linearGradient id="linearGradient643" y2="-1.5806" xlink:href="#linearGradient624" y1="2.2581" x2="2.2417e-8" x1=".99222"/>
+    <radialGradient id="radialGradient644" xlink:href="#linearGradient624" cy=".50746" cx=".26315" r=".92106"/>
+    <radialGradient id="radialGradient725" xlink:href="#linearGradient621" spreadMethod="reflect" cy=".49621" cx=".51907" r=".51152"/>
+  </defs>
+  <path id="path721" stroke-linejoin="round" d="m18.75 275h441.25c12.29-1.25 17.08-9.38 22.5-24.38 5.21-16.87 4.79-155.62-0.62-170.62-4.8-13.125-9.59-30-21.88-30h-441.25v225z" fill-rule="evenodd" stroke="#000" stroke-width="5" fill="#fff"/>
+  <g id="g635" transform="matrix(1 0 0 .89629 -27.474 16.514)">
+    <rect id="rect611" stroke-linejoin="bevel" transform="matrix(1.5 0 0 1.25 -215 -40)" height="50" width="25" y="87.5" x="362.5" stroke-width="3.75" fill="url(#radialGradient627)"/>
+    <rect id="rect614" fill-rule="evenodd" transform="matrix(1.5 0 0 1.25 -215 -40)" height="50" width="25" y="137.5" x="362.5" fill="url(#linearGradient619)"/>
+    <rect id="rect620" stroke-linejoin="bevel" transform="matrix(1.5 0 0 1.25 -215 -40)" height="50" width="25" y="187.5" x="362.5" stroke-width="3.75" fill="url(#radialGradient618)"/>
+  </g>
+  <path id="path690" d="m365.02 77.155c-3.69 0.697-6.93 2.229-7.07 5.852 3.83 54.073 3.68 105.7-1.77 159.77 0 3.35 3.09 5.9 5.3 5.9l61.87 6.57c4.71 0.44 9.57-3.25 10.61-7.53 5.33-55.95 5.66-114.27-0.88-171.4 0.14-4.177-5.05-8.007-9.73-6.689l-58.33 7.524z" stroke="#000" stroke-width="2.4315" fill="url(#radialGradient644)"/>
+  <text id="text694" font-size="22" space="default" transform="matrix(6.6595e-7 1 1.2172 -.00082668 0 0)" y="384.650909" x="93.0998766" font-family="Arial Black" fill="#ff0000">
+    <tspan id="tspan705" y="384.650909" x="93.0998764" fill="#ff0000">AMBULANS</tspan>
+  </text>
+  <g id="g717" fill-rule="evenodd" transform="translate(-6.0291 1.5468)">
+    <path id="path714" d="m250 188.12a81.875 81.875 0 1 0 -163.75 0 81.875 81.875 0 1 0 163.75 0z" fill="#f00" transform="translate(14.375 -26.25)"/>
+    <rect id="rect715" height="120" width="39.999" y="101.77" x="162.28" fill="#fff"/>
+    <rect id="rect716" transform="rotate(90)" height="120" width="39.999" y="-242.28" x="141.77" fill="#fff"/>
+  </g>
+  <path id="path723" d="m472.28 243.52c9.01 0 8.29-63.28 8.12-77.5 0.29-15.09 1.32-85.677-7.5-85.623 0 20.773-0.29 145.48-0.62 163.12z" fill="#818181" fill-rule="evenodd"/>
+  <g id="g729" stroke="#000" fill="none" transform="matrix(1.1719 0 0 1 -49.833 1.5625)">
+    <path id="path727" stroke-width="1pt" d="m66.291 62.36h218.32"/>
+    <path id="path728" d="m66.291 261.3h218.32"/>
+  </g>
+  <g id="g733" fill-rule="evenodd" transform="translate(-6.2501 .93750)" fill="url(#radialGradient725)">
+    <path id="path724" d="m58.125 73.749a14.375 14.375 0 1 0 -28.75 0 14.375 14.375 0 1 0 28.75 0z" transform="translate(6.25 8.125)"/>
+    <path id="path726" d="m58.125 73.749a14.375 14.375 0 1 0 -28.75 0 14.375 14.375 0 1 0 28.75 0z" transform="translate(6.25 170.44)"/>
+  </g>
+  <path id="path736" stroke-linejoin="bevel" d="m345.98 72.966c-6.08 0.625-44.98 1.875-46.85 0-1.87-2.258-1.87-10.611 0-11.932l113.25-0.857c7.72-0.081 7.79 3.433 4.41 4.446-6.25 1.719-64.13 7.906-70.81 8.343z" fill-rule="evenodd" stroke="#000" stroke-width="2.5" fill="url(#linearGradient643)"/>
+  <path id="path738" stroke-linejoin="bevel" d="m346.04 253.11c-6.08-0.62-44.98-1.87-46.85 0-1.87 2.26-1.87 10.61 0 11.94l113.25 0.85c7.72 0.08 7.79-3.43 4.41-4.44-6.25-1.72-64.13-7.91-70.81-8.35z" fill-rule="evenodd" stroke="#000" stroke-width="2.5" fill="url(#linearGradient643)"/>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>ambulans romus 01</dc:title>
+        <dc:date>2010-04-10T20:10:24</dc:date>
+        <dc:description>originally uploaded by romus for OCAL 0.18</dc:description>
+        <dc:source>http://openclipart.org/detail/45955/ambulans-romus-01-by-anonymous</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Anonymous</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>ambulance</rdf:li>
+            <rdf:li>clip art</rdf:li>
+            <rdf:li>clipart</rdf:li>
+            <rdf:li>emergency</rdf:li>
+            <rdf:li>transportation</rdf:li>
+            <rdf:li>vehicle</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

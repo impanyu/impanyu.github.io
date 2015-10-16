@@ -1,0 +1,662 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>Space Demo</title>
+    <link href="stylesheets/screen.css" media="all" rel="stylesheet" type="text/css"/>
+    <script language="javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/jquery.hotkeys.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/key_status.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/util.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/sprite.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/sound.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <h1>Road Control</h1>
+    <script type='text/javascript'>
+      //<![CDATA[
+        var ROADWIDTH=320;
+        var ROADHEIGHT=50;
+        var CANVAS_WIDTH = ROADWIDTH*2+ROADHEIGHT*2;
+        var CANVAS_HEIGHT = ROADWIDTH*2+ROADHEIGHT*2;
+        
+        var CARHEIGHT=ROADHEIGHT*0.6;
+        var CARWIDTH=CARHEIGHT*2;
+        var FPS = 30;
+        var TO_RADIANS=Math.PI/180;
+        var VELOCITY=4;
+        var ACCELERATION=0.7;
+
+        var ERR=5;
+       // var OMIGALEFT=VELOCITY/1.5/ROADHEIGHT;
+       // var OMIGARIGHT=VELOCITY/0.5/ROADHEIGHT;
+
+      function distance(a,b){
+            return (Math.abs(a.x-b.x)+Math.abs(a.y-b.y))/2;
+      }
+
+      function signal(angle,x,y,sectionid,index){
+        this.sectionid=sectionid;
+        this.index=index;
+        this.angle=angle;
+        this.x=x;
+        this.y=y;
+        this.width=CARHEIGHT*1.8;
+        this.height=CARWIDTH;
+        this.yellowTime=1*FPS;
+        //this.lastState="green";
+        this.draw = function() {
+            
+            canvas.save();
+            canvas.translate(x+roadSections[sectionid].x,y+roadSections[sectionid].y);
+            canvas.rotate(this.angle*TO_RADIANS);
+            this.sprite.draw(canvas, -this.width/2, -this.height/2,this.width,this.height);
+            canvas.restore();
+          };
+
+        this.setSignal=function(state,sprite){
+          this.state=state;
+          this.sprite=sprite;
+          if(state=="green"){
+            roadSections[this.sectionid].entranceSection[this.index].stopSign=false;
+            this.lastState="green";
+          }
+          else if(state=="red"){
+            roadSections[this.sectionid].entranceSection[this.index].stopSign=true;
+            this.lastState="red";
+          }
+          else
+              this.yellowTime=0.5*FPS;
+        }
+
+        this.update=function(){
+          if(this.state=="yellow")
+            this.yellowTime--;
+          else
+             return;
+          if(this.yellowTime==0) {
+              //this.yellowTime=2*FPS;
+            if(this.lastState=="red"){
+              this.setSignal("green",roadSections[sectionid].sprites["green"]);
+              //this.lastState="green";
+            }
+            else {
+              this.setSignal("red",roadSections[sectionid].sprites["red"]);
+              //this.lastState="red";
+            }
+        }
+      
+
+      }
+    }
+
+
+       function roadSection(){
+          this.id=0;
+          this.cars=[];
+          this.adjacentSections=[];
+          this.x=0;
+          this.y=0;
+          this.width=ROADWIDTH;
+          this.height=ROADHEIGHT;
+          this.angle=0;
+
+          this.entranceX=0;
+          this.entranceY=0;
+
+          this.stopSign=false;
+          this.signals=[];
+
+
+
+          //this.sprite=Sprite("road");
+
+          this.testCollide=function(){
+            for(var i=0;i<this.cars.length;i++){
+              for(var j=i+1;j<this.cars.length;j++)
+                if(this.cars[i].x && this.cars[j].x && Math.abs(this.cars[i].angle-this.cars[j].angle)!=180 &&  distance(this.cars[i],this.cars[j])<CARHEIGHT)
+                {
+                     this.cars[i].active=false;
+                     this.cars[j].active=false;
+                }
+            }
+          }
+
+          this.update= function(){
+
+             this.signals.forEach(function(s){
+                 s.update();
+              });
+             if( this.id%2==1 && Math.random() < 0.01 &&  (this.cars.length==0 || Math.abs(this.cars[this.cars.length-1].x-this.entranceX)
+                 +Math.abs(this.cars[this.cars.length-1].y-this.entranceY)>1.5*CARWIDTH)){
+                 //console.info("add");
+                  var newcar=car();
+                  var number=Math.random();
+                  if(number<0.1) number=0;
+                  else if(number<0.2) number=1;
+
+                  else if(number<0.3) number=2;
+                  else if(number<0.4) number=3;
+                  else if(number<0.5) number=4;
+                  else if(number<0.6) number=5;
+                  else if(number<0.7) number=6;
+                  else if(number<0.8) number=8;
+                  else  number=7;
+                 // else if(number<1) number=5;
+
+
+                  newcar.sprite=Sprite("car"+number);
+                 // newcar.index=this.cars.length;
+                  newcar.angle=this.angle;
+                  newcar.sectionid=this.id;
+                 /* if(this.id===1) newcar.angle=0;
+                  if(this.id===3) newcar.angle=-90;
+                  if(this.id===5) newcar.angle=-180;
+                  if(this.id===7) newcar.angle=-270;*/
+
+                  this.cars.push(newcar);
+                  newcar.x=this.entranceX;
+                  newcar.y=this.entranceY;
+                  //newcar.active=true;
+                  if(Math.random()<0.5) newcar.turnState="mid";
+                  else if(Math.random()<0.75) newcar.turnState="right";
+                  else newcar.turnState="left";
+             }
+
+             //if(this.id==8)
+              //console.info(this.cars);
+              //this.cars=this.cars.filter(function(e){
+
+                //return e.active;
+            //});
+              var newcars=[];
+              for(var i=0;i<this.cars.length;i++){
+                if(this.cars[i].active)
+                  newcars.push(this.cars[i]);
+              }
+              this.cars=newcars;
+
+              //if(this.id==8)
+              //console.info(this.cars);
+              //if(this.id!=8)
+              for(var i=0;i<=this.cars.length-1;i++){
+                this.cars[i].index=i;
+                //console.info();
+              }
+              
+          }
+
+          this.draw =function(){
+               //if(this.active)
+              this.sprite.draw(canvas, this.x, this.y,this.width,this.height);
+              this.signals.forEach(function(s){
+                 s.draw();
+              });
+          }
+
+        }
+
+       //initialize roadSections
+        roadSections=[];
+        for(var i=0;i<=8;i++){
+          var newsection=new roadSection();
+          newsection.id=i;
+         roadSections.push(newsection);
+
+         if(i==2 || i==3 || i==6 || i==7){
+          roadSections[i].width=ROADHEIGHT;
+          roadSections[i].height=ROADWIDTH;
+        }
+        if(i==8){
+           roadSections[i].width=ROADHEIGHT*2;
+           roadSections[i].height=ROADHEIGHT*2;
+         
+         }
+         
+      roadSections[i].sprite=Sprite("s" +i);
+
+      }
+      roadSections[0].angle=-180;
+      roadSections[1].angle=0;
+      roadSections[2].angle=-270;
+      roadSections[3].angle=-90;
+      roadSections[4].angle=0;
+      roadSections[5].angle=-180;
+      roadSections[6].angle=-90;
+      roadSections[7].angle=-270;
+
+      roadSections[1].stopSign=true;
+
+     roadSections[3].stopSign=true;
+     roadSections[5].stopSign=true;
+    //roadSections[7].stopSign=true;
+     
+   
+
+      roadSections[0].x=0;
+      roadSections[0].y=ROADWIDTH;
+      roadSections[1].x=0;
+      roadSections[1].y=ROADWIDTH+ROADHEIGHT;
+      roadSections[2].x=ROADWIDTH;
+      roadSections[2].y=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[3].x=ROADWIDTH+ROADHEIGHT;
+      roadSections[3].y=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[4].x=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[4].y=ROADWIDTH+ROADHEIGHT;
+      roadSections[5].x=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[5].y=ROADWIDTH;
+      roadSections[6].x=ROADWIDTH+ROADHEIGHT;
+      roadSections[6].y=0;
+      roadSections[7].x=ROADWIDTH;
+      roadSections[7].y=0;
+      roadSections[8].x=ROADWIDTH;
+      roadSections[8].y=ROADWIDTH;
+
+
+      roadSections[0].entranceX=roadSections[0].width;
+      roadSections[0].entranceY=roadSections[0].height/2;
+      roadSections[1].entranceX=0;//-CARWIDTH/2;
+      roadSections[1].entranceY=roadSections[1].height/2;
+
+      roadSections[4].entranceX=0;
+      roadSections[4].entranceY=roadSections[4].height/2;
+      roadSections[5].entranceX=roadSections[5].width;//+CARWIDTH/2;
+      roadSections[5].entranceY=roadSections[5].height/2;
+
+      roadSections[2].entranceX=roadSections[2].width/2;
+      roadSections[2].entranceY=0;
+      roadSections[3].entranceX=roadSections[3].width/2;
+      roadSections[3].entranceY=roadSections[3].height;//+CARWIDTH/2;
+
+      roadSections[6].entranceX=roadSections[6].width/2;
+      roadSections[6].entranceY=roadSections[6].height;
+      roadSections[7].entranceX=roadSections[7].width/2;
+      roadSections[7].entranceY=0;//-CARWIDTH/2;
+
+
+      roadSections[1].exitX=roadSections[1].width;
+      roadSections[1].exitY=roadSections[1].height/2;
+      roadSections[3].exitX=roadSections[3].width/2;
+      roadSections[3].exitY=0;
+      roadSections[5].exitX=0;
+      roadSections[5].exitY=roadSections[5].height/2;
+      roadSections[7].exitX=roadSections[7].width/2;;
+      roadSections[7].exitY=roadSections[7].height;
+
+      roadSections[8].entrance=[];
+      roadSections[8].entrance[1]={x:0,y:ROADHEIGHT*1.5};
+      roadSections[8].entrance[3]={x:ROADHEIGHT*1.5,y:ROADHEIGHT*2};
+      roadSections[8].entrance[5]={x:ROADHEIGHT*2,y:ROADHEIGHT*0.5};
+      roadSections[8].entrance[7]={x:ROADHEIGHT*0.5,y:0};
+
+      roadSections[8].entranceSection=[];
+      roadSections[8].entranceSection[0]=roadSections[1];
+      roadSections[8].entranceSection[1]=roadSections[3];
+      roadSections[8].entranceSection[2]=roadSections[5];
+      roadSections[8].entranceSection[3]=roadSections[7];
+
+
+
+      roadSections[1].adjacentSections[2]=roadSections[8];
+      roadSections[3].adjacentSections[3]=roadSections[8];
+      roadSections[5].adjacentSections[0]=roadSections[8];
+      roadSections[7].adjacentSections[1]=roadSections[8];
+
+      roadSections[8].adjacentSections[0]=roadSections[0];
+      roadSections[8].adjacentSections[1]=roadSections[2];
+      roadSections[8].adjacentSections[2]=roadSections[4];
+      roadSections[8].adjacentSections[3]=roadSections[6];
+
+
+
+  //initialize signals 
+     //roadSections[8].signals=[];
+    roadSections[8].sprites={};
+    roadSections[8].sprites["red"]=Sprite("red");
+    roadSections[8].sprites["green"]=Sprite("green");
+    roadSections[8].sprites["yellow"]=Sprite("yellow");
+
+    roadSections[8].signals[0]=new signal(-90,0,roadSections[8].height/2,8,0);
+    roadSections[8].signals[1]=new signal(-180,roadSections[8].width/2,roadSections[8].height,8,1);
+    roadSections[8].signals[2]=new signal(-270,roadSections[8].width,roadSections[8].height/2,8,2);
+    roadSections[8].signals[3]=new signal(0,roadSections[8].width/2,0,8,3);
+
+    roadSections[8].signals[0].setSignal("red",roadSections[8].sprites["red"]);
+    roadSections[8].signals[1].setSignal("red",roadSections[8].sprites["red"]);
+    roadSections[8].signals[2].setSignal("red",roadSections[8].sprites["red"]);
+    roadSections[8].signals[3].setSignal("red",roadSections[8].sprites["red"]); 
+        //cars = [];
+        
+        function car(I) {
+          I = I || {};
+          I.index=0;      
+          I.active = true;
+          I.age = 0;
+          I.angle=0;  
+          I.state="driving";//driving,braking,waiting,starting
+          I.turnState="mid";
+
+          //I.color = "#A2B";
+        
+          I.x = 0;
+          I.y = 0;
+          I.Velocity = VELOCITY;
+          //I.yVelocity = 2;
+        
+          I.width = CARWIDTH;
+          I.height = CARHEIGHT;
+        
+          I.inBounds = function(section) {
+           
+            if(I.x<0)
+             return 0;
+            if(I.x>section.width) 
+              return 2;
+            if(I.y<0)
+             return 3;
+            if(I.y>section.height) 
+              return 1;
+            //default: in the section
+            return 4;
+
+          };
+        
+        //  I.sprite = Sprite("car");
+        
+          I.draw = function(section) {
+            //transfer to global coordinates
+            x=I.x+section.x;
+            y=I.y+section.y;
+            
+            canvas.save();
+            canvas.translate(x,y);
+            canvas.rotate(I.angle*TO_RADIANS);
+            //if(I.active)
+            I.sprite.draw(canvas, -I.width/2, -I.height/2,I.width,I.height);
+            //console.info(I.x);
+            canvas.restore();
+          };
+
+          I.drive= function(section){
+            I.x += I.Velocity*Math.cos(I.angle*TO_RADIANS);
+            I.y += I.Velocity*Math.sin(I.angle*TO_RADIANS);
+            if(section.id==1){
+              //console.info(I.x);
+              //console.info(I.y);
+            }
+           // for(var i=0;i<section.cars.length;i++){
+             // if(i==I.index) continue;
+              //if(Math.abs(section.cars[i].x-I.x)+Math.abs(section.cars[i].y-I.y)<I.width+10 ){
+              //  console.info("here");
+              if(I.index>=1){
+              //console.info(section.cars[I.index-1]);
+              //console.info(section.id);
+              }
+              if(section.id!=8 &&  I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)<I.width+15){
+                 I.state="braking";
+                
+              }
+ 
+            if(section.id!=8 && I. index==0 && Math.abs(section.exitX-I.x)+Math.abs(section.exitY-I.y)<I.width && section.stopSign)
+                 I.state="braking";
+          }
+
+
+          I.brake= function(section){
+            I.Velocity-=ACCELERATION;
+            if(I.Velocity<=0){
+              I.Velocity=0;
+              I.state="waiting";
+              return;
+            }
+            var ifstart=true;
+            I.x += I.Velocity*Math.cos(I.angle*TO_RADIANS);
+            I.y += I.Velocity*Math.sin(I.angle*TO_RADIANS);
+           // for(var i=0;i<section.cars.length;i++){
+              //if(i==I.index) continue;
+              if(section.id!=8 &&I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)>I.width+15 || section.id==8)
+              
+                  I.state="starting";
+                  //return;
+            
+            
+             if(section.id!=8 && I.index==0  && !section.stopSign)
+                 I.state="starting";
+
+          }
+
+            I.start= function(section){
+            I.Velocity+=ACCELERATION;
+            //console.info(I.Velocity);
+            if(I.Velocity>=VELOCITY){
+              I.Velocity=VELOCITY;
+              I.state="driving";
+            }
+            var ifbrake=false;
+            I.x += I.Velocity*Math.cos(I.angle*TO_RADIANS);
+            I.y += I.Velocity*Math.sin(I.angle*TO_RADIANS);
+            //for(var i=0;i<section.cars.length;i++){
+              //if(i==I.index) continue;
+              //if(Math.abs(section.cars[i].x-I.x)+Math.abs(section.cars[i].y-I.y)<I.width+10)
+              if(section.id!=8 && I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)<I.width+15)
+                I.state="braking";
+
+            if(section.id!=8 && I.index==0 && Math.abs(section.exitX-I.x)+Math.abs(section.exitY-I.y)<I.width+15 && section.stopSign)
+                 I.state="braking";
+          }
+
+          I.wait= function(section){
+            //var ifstart=true;
+             //for(var i=0;i<section.cars.length;i++){
+             // if(i==I.index) continue;
+             // if(Math.abs(section.cars[i].x-I.x)+Math.abs(section.cars[i].y-I.y)<I.width+10)
+             if(section.id!=8 && I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)>I.width+15)
+                I.state="starting";
+             I.age++;
+
+
+           if(section.id!=8 && I.index==0  && !section.stopSign)
+                 I.state="starting";
+
+          }
+
+          I.turn=function(section){
+            if(I.turnState=="left")
+             I.angle-=I.Velocity/ROADHEIGHT/1.5*180/Math.PI;
+            else if(I.turnState=="right")
+             I.angle+=I.Velocity/ROADHEIGHT/0.5*180/Math.PI;
+          }
+        
+          I.update = function(section) {
+
+            //console.info(I.Velocity);
+             //console.info(I);
+            switch(I.state){
+              case "driving": this.drive(section);
+                              break;
+              case "waiting": this.wait(section);
+                              break;
+              case "starting":this.start(section);
+                              break;
+              case "braking": this.brake(section);
+                              break;
+            }  
+            if(section.id===8)
+              this.turn(section);
+            if(this.age>10*FPS){
+               this.explode();
+               return;
+
+             }
+
+            var whichSection=I.inBounds(section);
+            //console.info(whichSection);
+            
+
+            if(whichSection==4) {
+
+               //console.info(section.id);
+               return;}
+            //still in the section
+
+            else if(!section.adjacentSections[whichSection]){
+            //out of map
+            //console.info(section.id);
+               I.active = false;
+               //console.info("   "+section.id);
+               //console.info(whichSection);
+             }
+            else{//in another section
+              //console.info(section.adjacentSections[whichSection].id);
+              //console.info("change");
+             // var newcar=new car();
+              //newcar.active=false;
+
+              section.cars[section.cars.indexOf(I)]={active:false};//here missing 'cars'
+
+             
+               //console.info(section.);
+             
+              if(section.adjacentSections[whichSection].id!=8){//entering sections other than intersection
+               I.x=section.adjacentSections[whichSection].entranceX;
+               I.y=section.adjacentSections[whichSection].entranceY;
+               I.angle=section.adjacentSections[whichSection].angle;
+               //console.info(whichSection);
+              // console.info(section.adjacentSections[whichSection]).id;
+                //console.info("change");
+              // if(I.angle<=90+ERR && I.angle>=90-ERR)  I.angle=90;
+               //else if(I.angle<=180+ERR && I.angle>=180-ERR)  I.angle=180;
+               //else if(I.angle<=270+ERR && I.angle>=270-ERR)  I.angle=270;
+              }
+              else{//enter intersection
+                //console.info(" "+I.sectionid+" "+section.id);
+                //console.info(section.adjacentSections[whichSection].cars.length);
+                I.x=roadSections[8].entrance[section.id].x;
+                I.y=roadSections[8].entrance[section.id].y;
+                //I.active=false;
+                // section.adjacentSections[whichSection].cars.push(I);      
+
+              }
+            // I.index=section.adjacentSections[whichSection].cars.length-1;
+
+             I.sectionid=section.adjacentSections[whichSection].id;
+             section.adjacentSections[whichSection].cars.push(I);
+             //I.active=true;
+           
+
+              //console.info(section.adjacentSections[whichSection].id);
+             //console.info(I.active);
+             //I.state="driving";
+
+            }
+
+
+          };
+        
+          I.explode = function() {
+            //Sound.play("explosion");
+            
+            this.active = false;
+            // Extra Credit: Add an explosion graphic
+          };
+        
+          return I;
+        };
+        
+
+
+        var canvasElement = $("<canvas width='" + CANVAS_WIDTH + 
+          "' height='" + CANVAS_HEIGHT + "'></canvas");
+        var canvas = canvasElement.get(0).getContext("2d");
+        canvasElement.appendTo('body');
+       
+       canvasElement[0].onmouseup=function(event){
+         var rect=canvasElement[0].getBoundingClientRect();
+          var x=event.clientX;
+          var y=event.clientY;
+         
+          //var left=rect.left+pageXOffset;
+          //var top=rect.top+pageYOffset;
+
+          //console.info(x);
+          roadSections[8].signals.forEach(function(s){
+     
+
+            if(s.angle==0 || s.angle==-180){
+                 var ltCorner={x:s.x-s.width/2,y:s.y-s.height/2};
+                 var rbCorner={x:s.x+s.width/2,y:s.y+s.height/2};
+
+              
+             }
+            else{
+                var ltCorner={x:s.x-s.height/2,y:s.y-s.width/2};
+                 var rbCorner={x:s.x+s.height/2,y:s.y+s.width/2};
+
+            } 
+
+              if(x>=ltCorner.x+roadSections[8].x+rect.left && x<rbCorner.x+roadSections[8].x+rect.left
+                && y>=ltCorner.y+roadSections[8].y+rect.top && y<rbCorner.y+roadSections[8].y+rect.top)// click on a signal
+               {
+                  console.info("h");
+                  if(s.state=="green" || s.state=="red")  s.setSignal("yellow",roadSections[8].sprites["yellow"]);
+               }
+          });
+        }
+        
+        setInterval(function() {
+          update();
+          draw();
+        }, 1000/FPS);
+        
+
+
+          function draw() {
+          canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          //mapSprite.draw(canvas, 0, 0,CANVAS_WIDTH, CANVAS_HEIGHT);
+          canvas.fillStyle = 'green';
+          canvas.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          for(var i=0;i<=8;i++){
+            roadSections[i].draw();
+          }
+
+          for(var i=0;i<=8;i++){
+            
+            roadSections[i].cars.forEach(function(car){
+                car.draw(roadSections[i]);
+            });
+
+            
+          }
+
+
+
+
+        }
+
+        function update() {
+          
+
+          for(var k=0;k<=8;k++){
+
+            roadSections[k].cars.forEach(function(car){
+                car.update(roadSections[k]);
+            });
+            
+          
+          }
+          roadSections[8].testCollide();
+
+          for(var k=0;k<=8;k++){
+              roadSections[k].update();
+          }
+
+          
+          //console.info(roadSections[8].cars);
+        
+          //handleCollisions();
+        
+        
+        }
+
+    </script>
+  </body>
+</html>
