@@ -50,6 +50,33 @@
 
         //var backhomeButton2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "backhome2");
         //var restart2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "restart2");
+        var resources={};
+        resources["sounds"]=false;
+        resources["cars"]=false;
+        resources["menubackground"]=false;
+        resources["gamebackground"]=false;
+
+
+
+        var click = $('<audio />').get(0);
+        var music = $('<audio />').get(0);
+        music.oncanplaythrough=function(){
+          resources["sounds"]=true;
+          //console.info(11);
+        }
+        var crash = $('<audio />').get(0);
+        var carstart = $('<audio />').get(0);
+        var carstart2 = $('<audio />').get(0);
+
+
+        click.src = "sounds/click.mp3";
+        music.src = "sounds/background.mp3";
+        music.loop=true;
+        crash.src = "sounds/crash.mp3";
+        carstart.src = "sounds/carstart.wav";
+        carstart2.src = "sounds/carstart2.wav";
+
+
 
         var menuBackgroundSprite=Sprite("background");
         var gameBackgroundSprite=Sprite("gamebackground");
@@ -104,35 +131,18 @@
 
        }
 
-        var click = $('<audio />').get(0);
-        click.src = "sounds/click.mp3";
+     
 
-        var music = $('<audio />').get(0);
-        music.src = "sounds/background.mp3";
-        music.loop=true;
-
-        var crash = $('<audio />').get(0);
-        crash.src = "sounds/crash.mp3";
-
-        var carstart = $('<audio />').get(0);
-        carstart.src = "sounds/carstart.wav";
-
-        var carstart2 = $('<audio />').get(0);
-        carstart2.src = "sounds/carstart2.wav";
+       
+        
         //crash.volume=1;
        // var OMIGALEFT=VELOCITY/1.5/ROADHEIGHT;
        // var OMIGARIGHT=VELOCITY/0.5/ROADHEIGHT;
-        var resources={};
-        resources["sounds"]=false;
-        resources["cars"]=false;
-        resources["menubackground"]=false;
-        resources["gamebackground"]=false;
+      
         //resources["cars"]=false;
 
-        music.oncanplay=function(){
-          resources["sounds"]=true;
-          //console.info(11);
-        }
+     
+
       
 
 
