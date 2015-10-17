@@ -39,7 +39,7 @@
 
         var ERR=5;
 
-        var gameLevel="main";
+        var gameLevel="loading";
         var startButton=new button(133,CANVAS_HEIGHT/2+80,150,150, "start");
         var backhomeButton=new button(30 ,30, 40,40, "backhome");
         var refreshButton=new button(75,30,40,40, "refresh");
@@ -124,9 +124,16 @@
         var resources={};
         resources["sounds"]=false;
         resources["cars"]=false;
-        resources["menuBackground"]=false;
+        resources["menubackground"]=false;
         resources["gamebackground"]=false;
         //resources["cars"]=false;
+
+        music.oncanplaythrough=function(){
+          resources["sounds"]=true;
+          console.info(11);
+        }
+      
+
 
         function number(x,y,n,text,color,type){
         this.x=x;
@@ -1116,23 +1123,43 @@
           //handleCollisions();   
         }
           var loadingcount=0;
+          var loadingBarLength=360;
+          var loading=0;
           setInterval(function() {
             if(gameLevel=="loading"){
                canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+               canvas.fillStyle="grey";
+               canvas.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
                 canvas.save();
-                canvas.font="Bold 70px 'Times New Roman'";
+                canvas.font="Bold 50px 'Times New Roman'";
                canvas.textAlign="left";
-               canvas.fillStyle="red";
+               canvas.fillStyle="blue";
                 if(loadingcount<10)
-                  canvas.fillText("Loading.",CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2-25);
+                  canvas.fillText("Loading.",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
                 else if(loadingcount<20)
-                  canvas.fillText("Loading..",CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2-25);
+                  canvas.fillText("Loading..",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
                 else if(loadingcount<30)
-                  canvas.fillText("Loading...",CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2-25);
+                  canvas.fillText("Loading...",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
                 else
-                canvas.fillText("Loading....",CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2-25);
+                canvas.fillText("Loading....",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
                canvas.restore();
                loadingcount=(loadingcount+1)%40;
+              canvas.fillStyle="red";
+              canvas.fillRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength*loading/100,50);
+              canvas.lineWidth=2.0;
+              canvas.strokeRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength,50);
+              if(loading==20 && !resources["sounds"])
+                 loading=20;
+              else if(loading==40 && !resources["cars"])
+                 loading=40;
+              else if(loading==60 && !resources["menubackground"])
+                loading=60;
+              else if(loading==80 && !resources["gamebackground"])
+                loading=80;
+              else if(loading==100)
+                 gameLevel="main";
+               else
+                  loading++;
             }
 
             else if(gameLevel=="main"){

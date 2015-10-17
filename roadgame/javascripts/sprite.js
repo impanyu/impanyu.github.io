@@ -48,6 +48,13 @@
     var proxy = LoaderProxy();
     
     img.onload = function() {
+      if(url=="images/car14.png")
+         resources["cars"]=true;
+      if(url=="images/background.png")
+        resources["menubackground"]=true;
+      if(url=="images/gamebackground.png")
+        resources["gamebackground"]=true;
+
       var tile = Sprite(this);
       
       $.extend(proxy, tile);
