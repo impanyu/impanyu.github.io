@@ -1138,7 +1138,7 @@
           var loading=0;
           setInterval(function() {
             if(gameLevel=="loading"){
-               if(music.readyState==4) 
+               if(music.readyState>=2) 
                  resources["sound"]=true;
                canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
                canvas.fillStyle="grey";
