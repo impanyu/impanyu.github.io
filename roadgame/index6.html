@@ -51,7 +51,7 @@
         //var backhomeButton2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "backhome2");
         //var restart2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "restart2");
         var resources={};
-        resources["sounds"]=true;
+        resources["sounds"]=false;
         resources["cars"]=false;
         resources["menubackground"]=false;
         resources["gamebackground"]=false;
@@ -60,7 +60,7 @@
 
         var click = $('<audio />').get(0);
         var music = $('<audio />').get(0);
-        music.oncanplaythrough=function(){
+        music.onloadstart=function(){
           resources["sounds"]=true;
           console.info(11);
         }
