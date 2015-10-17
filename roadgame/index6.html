@@ -41,12 +41,7 @@
         var ERR=5;
 
         var gameLevel="loading";
-        var startButton=new button(133,CANVAS_HEIGHT/2+80,150,150, "start");
-        var backhomeButton=new button(30 ,30, 40,40, "backhome");
-        var refreshButton=new button(75,30,40,40, "refresh");
-        var soundButton=new button(120 ,30, 40,40, "nosounds");
-       // soundButton.sprite=Sprite("nosounds-pressed");
-        var pauseButton=new button(165,30,40,40, "pause");
+      
 
         //var backhomeButton2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "backhome2");
         //var restart2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "restart2");
@@ -85,42 +80,7 @@
        var crashEffects=[];
        var carsLeft=new number(CANVAS_WIDTH-150,30,30,"Cars Left: ","blue","carsLeft");
        var timeLeft=new number(CANVAS_WIDTH-150,60,FPS*40,"Time Left: ","blue","timeLeft");
-
-       var sprites={};
-       sprites["crash"]=Sprite("crash");
-       sprites["cloud"]=Sprite("cloud");
-
-        var signalSprites={};
-       signalSprites["red"]=Sprite("red");
-       signalSprites["green"]=Sprite("green");
-       signalSprites["yellow"]=Sprite("yellow");
-
-       var carsprites={};
-       carsprites["car0"]=Sprite("car0");
-       carsprites["car1"]=Sprite("car1");
-       carsprites["car2"]=Sprite("car2");
-       carsprites["car3"]=Sprite("car3");
-       carsprites["car4"]=Sprite("car4");
-       carsprites["car5"]=Sprite("car5");
-       carsprites["car6"]=Sprite("car6");
-       carsprites["car7"]=Sprite("car7");
-       carsprites["car8"]=Sprite("car8");
-       carsprites["car9"]=Sprite("car9");
-       carsprites["car10"]=Sprite("car10");
-       carsprites["car11"]=Sprite("car11");
-       carsprites["car12"]=Sprite("car12");
-       carsprites["car13"]=Sprite("car13");
-       carsprites["car14"]=Sprite("car14");
-
-
-
-
-
-
-       var gameState="playing";
-       var ifSounds=true;
-
-       timeLeft.update=function(){
+           timeLeft.update=function(){
         this.count=(this.count+1)%10;
         if(this.number>0)
           this.number--;
@@ -130,6 +90,61 @@
         }
 
        }
+
+       var sprites={};
+       sprites["crash"]=Sprite("crash");
+       sprites["cloud"]=Sprite("cloud");
+       sprites["pause"]=Sprite("pause");
+       sprites["pause-pressed"]=Sprite("pause-pressed");
+       sprites["playing"]=Sprite("playing");
+       sprites["playing-pressed"]=Sprite("playing-pressed");
+       sprites["refresh"]=Sprite("refresh");
+       sprites["refresh-pressed"]=Sprite("refresh-pressed");
+       sprites["nosounds"]=Sprite("nosounds");
+       sprites["nosounds-pressed"]=Sprite("nosounds-pressed");
+       sprites["sounds"]=Sprite("sounds");
+       sprites["sounds-pressed"]=Sprite("sounds-pressed");
+       sprites["backhome"]=Sprite("backhome");
+       sprites["backhome-pressed"]=Sprite("backhome-pressed");
+       sprites["left"]=Sprite("left");
+       sprites["right"]=Sprite("right");
+       sprites["mid"]=Sprite("mid");
+       sprites["start"]=Sprite("start");
+       sprites["start-pressed"]=Sprite("start-pressed");
+
+      for(j=0;j<=8;j++){
+        sprites["s"+j]=Sprite("s"+j);
+      }
+
+
+
+        var signalSprites={};
+       signalSprites["red"]=Sprite("red");
+       signalSprites["green"]=Sprite("green");
+       signalSprites["yellow"]=Sprite("yellow");
+
+       var carsprites={};
+       for(j=0;j<=14;j++)
+        carsprites["car"+j]=Sprite("car"+j);
+ 
+   
+
+
+
+
+
+
+       var gameState="playing";
+       var ifSounds=true;
+
+       var startButton=new button(133,CANVAS_HEIGHT/2+80,150,150, "start");
+        var backhomeButton=new button(30 ,30, 40,40, "backhome");
+        var refreshButton=new button(75,30,40,40, "refresh");
+        var soundButton=new button(120 ,30, 40,40, "nosounds");
+       // soundButton.sprite=Sprite("nosounds-pressed");
+        var pauseButton=new button(165,30,40,40, "pause");
+
+   
 
      
 
@@ -224,7 +239,7 @@
         this.width=width;
         this.height=height;
         this.name=name;
-        this.sprite=Sprite(name);
+        this.sprite=sprites[name];
 
         this.ifPressed=false;
 
@@ -252,7 +267,7 @@
              // timeLeft.blink=false;
               gameState="playing";
               crashEffects=[];
-              this.sprite=Sprite(this.name);
+              this.sprite=sprites[this.name];
                this.ifPressed=false;
 
 
@@ -305,14 +320,14 @@
                  music.pause();
                 gameState="pause";
                 this.name="playing";
-                this.sprite=Sprite("playing-pressed");
+                this.sprite=sprites["playing-pressed"];
               }
               else if(gameState=="pause"){
                   
                    music.play();
                  gameState="playing";
                  this.name="pause";
-                 this.sprite=Sprite("pause-pressed");
+                 this.sprite=sprites["pause-pressed"];
                }
               
             }
@@ -325,7 +340,7 @@
                 carstart2.volume=0;
                 ifSounds=false;
                 this.name="sounds";
-                this.sprite=Sprite("sounds-pressed");
+                this.sprite=sprites["sounds-pressed"];
               }
               else{
                   music.volume=1;
@@ -334,7 +349,7 @@
                 carstart2.volume=0;
                  ifSounds=true;
                 this.name="nosounds";
-                this.sprite=Sprite("nosounds-pressed");
+                this.sprite=sprites["nosounds-pressed"];
               }
               
             }
@@ -348,14 +363,14 @@
                  if(!this.ifPressed){
                     click.currentTime=0;
                     click.play();
-                this.sprite=Sprite(this.name+"-pressed");
+                this.sprite=sprites[this.name+"-pressed"];
                this.ifPressed=true;
              }
              
             }
             else{
                if(this.ifPressed)
-               this.sprite=Sprite(this.name);
+               this.sprite=sprites[this.name];
                this.ifPressed=false;
 
             }
@@ -366,7 +381,7 @@
 
           if(x-rect.left<this.x-this.width/2 || x-rect.left>this.x+this.width/2 || y-rect.top<this.y-this.height/2 || y-rect.top>this.y+this.height/2){
              if(this.ifPressed){
-               this.sprite=Sprite(this.name);
+               this.sprite=sprites[this.name];
                this.ifPressed=false;
            }
           }
@@ -374,7 +389,7 @@
             if(!this.ifPressed){
                  click.currentTime=0;
                 click.play();
-               this.sprite=Sprite(this.name+"-pressed");
+               this.sprite=sprites[this.name+"-pressed"];
                this.ifPressed=true;
              }
            }
@@ -579,7 +594,7 @@
                    else if(Math.random()<0.75) newcar.turnState="right";
                   else newcar.turnState="left";
 
-                   newcar.turnsprite=Sprite(newcar.turnState);
+                   newcar.turnsprite=sprites[newcar.turnState];
              }
 
              //if(this.id==8)
@@ -632,7 +647,7 @@
          
          }
          
-      roadSections[i].sprite=Sprite("s" +i);
+      roadSections[i].sprite=sprites["s" +i];
 
       }
       roadSections[0].angle=-180;
