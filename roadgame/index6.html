@@ -1173,9 +1173,9 @@
                canvas.restore();
                loadingcount=(loadingcount+1)%40;
               canvas.fillStyle="red";
-              canvas.fillRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength*loading/100,50);
+              canvas.fillRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength*loading/100,10);
               canvas.lineWidth=2.0;
-              canvas.strokeRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength,50);
+              canvas.strokeRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength,10);
               if(loading==20 && !resources["sounds"])
                  loading=20;
               else if(loading==40 && !resources["cars"])
