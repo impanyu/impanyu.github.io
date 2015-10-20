@@ -532,7 +532,7 @@
           this.testCollide=function(){
             for(var i=0;i<this.cars.length;i++){
               for(var j=i+1;j<this.cars.length;j++)
-                if(this.cars[i].fromSection !=this.cars[j].fromSection  && this.cars[i].x && this.cars[j].x && (Math.abs(this.cars[i].angle-this.cars[j].angle)>=190 ||Math.abs(this.cars[i].angle-this.cars[j].angle)<=170)  && distance(this.cars[i],this.cars[j])< CARHEIGHT)//&& Math.abs(this.cars[i].x-this.cars[j].x)+Math.abs(this.cars[i].y-this.cars[j].y)<CARHEIGHT)  
+                if(this.cars[i].fromSection !=this.cars[j].fromSection  && this.cars[i].x && this.cars[j].x && (Math.abs(this.cars[i].angle-this.cars[j].angle)>=190 ||Math.abs(this.cars[i].angle-this.cars[j].angle)<=170)  && distance(this.cars[i],this.cars[j])< CARHEIGHT-2)//&& Math.abs(this.cars[i].x-this.cars[j].x)+Math.abs(this.cars[i].y-this.cars[j].y)<CARHEIGHT)  
                 {
                      this.cars[i].active=false;
                      this.cars[j].active=false;
@@ -1163,13 +1163,13 @@
                canvas.textAlign="left";
                canvas.fillStyle="blue";
                 if(loadingcount<10)
-                  canvas.fillText("Loading.",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+                  canvas.fillText("Loading.",CANVAS_WIDTH/2-110,CANVAS_HEIGHT/2-50);
                 else if(loadingcount<20)
-                  canvas.fillText("Loading..",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+                  canvas.fillText("Loading..",CANVAS_WIDTH/2-110,CANVAS_HEIGHT/2-50);
                 else if(loadingcount<30)
-                  canvas.fillText("Loading...",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+                  canvas.fillText("Loading...",CANVAS_WIDTH/2-110,CANVAS_HEIGHT/2-50);
                 else
-                canvas.fillText("Loading....",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+                canvas.fillText("Loading....",CANVAS_WIDTH/2-110,CANVAS_HEIGHT/2-50);
                canvas.restore();
                loadingcount=(loadingcount+1)%40;
               canvas.fillStyle="red";

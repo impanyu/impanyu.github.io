@@ -1008,6 +1008,7 @@
         }
       
        canvasElement[0].onmouseup=function(event){
+          event.preventDefault();
           var rect=canvasElement[0].getBoundingClientRect();
 
           var x=event.clientX;
