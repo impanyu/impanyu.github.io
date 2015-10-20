@@ -992,8 +992,11 @@
         var canvas = canvasElement.get(0).getContext("2d");
         canvasElement.appendTo('#canvasdiv');
 
+
         $("body")[0].onmousemove=function(event){
-           event.preventDefault();
+           //event.preventDefault();
+           //console.info(event.isDefaultPrevented());
+
            var rect=canvasElement[0].getBoundingClientRect();
 
           var x=event.clientX;
@@ -1007,9 +1010,19 @@
             soundButton.mouseMove(x,y,rect);
           }
         }
+        document.oncontextmenu=function(e){
+          e.preventDefault();
+        }
+        document.onmousedown=function(e){
+          e.preventDefault();
+        }
+        document.onmouseup=function(e){
+          e.preventDefault();
+        }
       
        canvasElement[0].onmouseup=function(event){
-          event.preventDefault();
+
+          //event.preventDefault();
           var rect=canvasElement[0].getBoundingClientRect();
 
           var x=event.clientX;

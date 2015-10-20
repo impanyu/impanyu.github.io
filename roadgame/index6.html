@@ -1039,6 +1039,16 @@
             soundButton.mouseMove(x,y,rect);
           }
         }
+
+           document.oncontextmenu=function(e){
+          e.preventDefault();
+        }
+        document.onmousedown=function(e){
+          e.preventDefault();
+        }
+        document.onmouseup=function(e){
+          e.preventDefault();
+        }
       
        canvasElement[0].onmouseup=function(event){
           var rect=canvasElement[0].getBoundingClientRect();
