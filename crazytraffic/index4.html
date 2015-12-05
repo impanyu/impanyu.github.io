@@ -1,0 +1,1764 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>Crazy Traffic</title>
+    <link href="stylesheets/screen.css" media="all" rel="stylesheet" type="text/css"/>
+     <script language="javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/jquery.min.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/jquery.hotkeys.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/key_status.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/util.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/sprite.js" type="text/javascript"></script>
+    <script language="javascript" src="javascripts/sound.js" type="text/javascript"></script>
+    <style>
+    h1{
+      width: 250px;
+      margin:10px auto;
+    }
+    #canvasdiv{
+      width:680px;
+      margin:10px auto;
+      position: relative;
+    }
+
+    #username{
+      background-color: yellow;
+      position: absolute;
+      top:505px;
+      left:392px;
+      font-size: 2em;
+      //opacity:0.5;
+      display:none;
+      border:3px solid black;
+
+    }
+    </style>
+  </head>
+  <body>
+    <!--<h1>Traffic Control</h1>-->
+    <div id="canvasdiv">
+      <input type="text" size="9" id="username" placeholder="Your Name">
+    </div>
+    <script type='text/javascript'>
+      //<![CDATA[
+        var ROADWIDTH=300;
+        var ROADHEIGHT=40;
+        var CANVAS_WIDTH = ROADWIDTH*2+ROADHEIGHT*2;
+        var CANVAS_HEIGHT = ROADWIDTH*2+ROADHEIGHT*2;
+        
+        var CARHEIGHT=ROADHEIGHT*0.6;
+        var CARWIDTH=CARHEIGHT*2;
+        var FPS = 30;
+        var TO_RADIANS=Math.PI/180;
+        var VELOCITY=4;
+        var ACCELERATION=0.7;
+
+        var TOTALTIME=20*FPS;
+        var TOTALCARS=10;
+
+        var ERR=5;
+
+        var gameLevel="loading";
+        var guideDisplay=false;
+        var whiteDisplay=false;
+
+        var username="guest";
+
+        var gameRecord=JSON.parse(localStorage.getItem("gameRecord"));
+        if(!gameRecord)
+          gameRecord=[];
+
+        var recordList=[];
+
+        var EMPTYSTRING="          ";
+
+      
+
+        //var backhomeButton2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "backhome2");
+        //var restart2=new button(CANVAS_WIDTH/2 ,CANVAS_WIDTH/5/2/2, CANVAS_WIDTH/5, "restart2");
+        var resources={};
+        resources["sounds"]=false;
+        resources["cars"]=false;
+        resources["menubackground"]=false;
+        resources["gamebackground"]=false;
+
+
+
+        var click = $('<audio />').get(0);
+        var music = $('<audio />').get(0);
+        music.oncanplaythrough=function(){
+          resources["sounds"]=true;
+          console.info(11);
+        }
+        var crash = $('<audio />').get(0);
+        var carstart = $('<audio />').get(0);
+        var carstart2 = $('<audio />').get(0);
+
+             var ambulance= $('<audio />').get(0);
+        var fire= $('<audio />').get(0);
+
+
+        click.src = "sounds/click.mp3";
+        music.src = "sounds/background.mp3";
+        music.loop=true;
+        crash.src = "sounds/crash.mp3";
+        carstart.src = "sounds/carstart.wav";
+        carstart2.src = "sounds/carstart2.wav";
+
+
+        ambulance.src = "sounds/ambulance.mp3";
+        fire.src = "sounds/firetruck.mp3";
+
+
+
+
+
+        var menuBackgroundSprite=Sprite("background");
+        var gameBackgroundSprite=Sprite("gamebackground");
+        var gameBackgroundSprite2=Sprite("gamebackground98");
+       
+       var clouds=[];
+       var crashEffects=[];
+       var carsLeft=new number(CANVAS_WIDTH-160,30,TOTALCARS,"Cars Left: ","#085fd5","carsLeft");
+       var timeLeft=new number(CANVAS_WIDTH-160,60,TOTALTIME,"Time Left: ","#085fd5","timeLeft");
+       //var welcome=new number(CANVAS_WIDTH-650,90,0,"Time Left: ","#017890","timeLeft");
+           timeLeft.update=function(){
+        this.count=(this.count+1)%10;
+        if(this.number>0)
+          this.number--;
+        if(this.number<FPS*10){
+          this.color="red";
+          this.blink=true;
+        }
+
+       }
+
+       var sprites={};
+       sprites["crash"]=Sprite("crash");
+       sprites["cloud"]=Sprite("cloud");
+       sprites["pause"]=Sprite("pause");
+       sprites["pause-pressed"]=Sprite("pause-pressed");
+       sprites["playing"]=Sprite("playing");
+       sprites["playing-pressed"]=Sprite("playing-pressed");
+       sprites["refresh"]=Sprite("refresh");
+       sprites["refresh-pressed"]=Sprite("refresh-pressed");
+       sprites["nosounds"]=Sprite("nosounds");
+       sprites["nosounds-pressed"]=Sprite("nosounds-pressed");
+       sprites["sounds"]=Sprite("sounds");
+       sprites["sounds-pressed"]=Sprite("sounds-pressed");
+       sprites["backhome"]=Sprite("backhome");
+       sprites["backhome-pressed"]=Sprite("backhome-pressed");
+       sprites["left"]=Sprite("left");
+       sprites["right"]=Sprite("right");
+       sprites["mid"]=Sprite("mid");
+       sprites["start"]=Sprite("start");
+       sprites["start-pressed"]=Sprite("start-pressed");
+       /*sprites["guide"]=Sprite("guide");
+       sprites["guide-pressed"]=Sprite("guide-pressed");
+       sprites["record"]=Sprite("record");
+       sprites["record-pressed"]=Sprite("record-pressed");*/
+       sprites["guideboard"]=Sprite("guideboard");
+       sprites["whiteboard"]=Sprite("whiteboard");
+       sprites["guide"]=Sprite("guide");
+       sprites["guide-pressed"]=Sprite("guide-pressed");
+       sprites["record"]=Sprite("record");
+       sprites["record-pressed"]=Sprite("record-pressed");
+
+       sprites["continue"]=Sprite("continue");
+       sprites["continue-pressed"]=Sprite("continue-pressed");
+
+
+
+
+      for(j=0;j<=8;j++){
+        sprites["s"+j]=Sprite("s"+j);
+      }
+
+
+
+        var signalSprites={};
+       signalSprites["red"]=Sprite("red");
+       signalSprites["green"]=Sprite("green");
+       signalSprites["yellow"]=Sprite("yellow");
+
+       var carsprites={};
+       for(j=0;j<=14;j++)
+         carsprites["car"+j]=Sprite("car"+j);
+
+      carsprites["car6b0"]=Sprite("car6b0");
+      carsprites["car6b1"]=Sprite("car6b1");
+      carsprites["car6b2"]=Sprite("car6b2");
+      carsprites["car14b0"]=Sprite("car14b0");
+      carsprites["car14b1"]=Sprite("car14b1");
+      carsprites["car14b2"]=Sprite("car14b2");
+   
+
+
+
+
+
+
+       var gameState="playing";
+       var ifSounds=true;
+
+       var startButton=new button(464,CANVAS_HEIGHT/2+80,150,150, "start");
+       //var instructionButton=new button(200, CANVAS_HEIGHT/2+80,150,150, "instruction");
+        var backhomeButton=new button(510 ,630, 40,40, "backhome");
+        var refreshButton=new button(550,630,40,40, "refresh");
+        var soundButton=new button(590,630, 40,40, "nosounds");
+       // soundButton.sprite=Sprite("nosounds-pressed");
+        var pauseButton=new button(635,630,40,40, "pause");
+
+       var guideButton = new button(600,650,80,40,"guide");
+       var recordButton= new button(500,650,80,40,"record");
+       var guideboard= new button(CANVAS_WIDTH/2,CANVAS_HEIGHT/2,450,350,"guideboard");
+       var whiteboard= new button(CANVAS_WIDTH/2,CANVAS_HEIGHT/2,600,450,"whiteboard");
+
+       var continueButton=new button(CANVAS_WIDTH/2,CANVAS_HEIGHT/2-50+100,140,30,"continue");
+       
+
+
+
+            
+        //crash.volume=1;
+       // var OMIGALEFT=VELOCITY/1.5/ROADHEIGHT;
+       // var OMIGARIGHT=VELOCITY/0.5/ROADHEIGHT;
+      
+        //resources["cars"]=false;
+
+       
+         function textItem(x,y,text,color){
+        this.x=x;
+        this.y=y;
+        this.text=text;
+        this.color=color;
+
+
+        this.draw=function(){
+           canvas.save();
+           canvas.font="Bold 20px 'Courier New' Monospace ";
+           canvas.textAlign="left";
+           canvas.fillStyle=this.color;
+
+           canvas.fillText(this.text,x,y);
+            canvas.restore();
+          //console.info("draw");
+        }
+
+        this.reset=function(){
+          this.color=color;
+          //this.count=0;
+          this.blink=false;
+        }
+      }
+
+
+
+
+
+      
+
+
+        function number(x,y,n,text,color,type){
+        this.x=x;
+        this.y=y;
+        this.number=n;
+        this.text=text;
+        this.color=color;
+        this.type=type;
+        this.count=0;
+        this.draw=function(){
+          if(this.blink && this.count<=3)
+            return;
+           canvas.save();
+           canvas.font="Bold 20px Georgia";
+           canvas.textAlign="left";
+           canvas.fillStyle=this.color;
+           if(this.type=="carsLeft")
+             canvas.fillText(this.text+this.number.toFixed(0),x,y);
+           else if(this.type=="timeLeft")
+              canvas.fillText(this.text+(this.number/FPS).toFixed(0),x,y);
+            canvas.restore();
+          //console.info("draw");
+        }
+
+        this.reset=function(){
+          this.number=n;
+          this.color=color;
+          this.count=0;
+          this.blink=false;
+        }
+      }
+
+        function crashEffect(x,y,width){
+        this.x=x;
+        this.y=y;
+        this.active=true;
+        this.width=width;
+        this.height=width;
+        this.sprite=sprites["crash"];
+        this.counter=0;
+        this.update=function(){
+          this.counter++;
+          if(this.counter>=FPS*0.5)
+             this.active=false;
+
+        }
+        this.draw=function(){
+          this.sprite.draw(canvas, this.x-this.width/2, this.y-this.height/2,this.width,this.height);
+          //console.info("draw");
+        }
+      }
+
+      function cloud(y,width){
+        this.x=-width;
+        this.y=y;
+        this.active=true;
+        this.width=width;
+        this.height=width;
+        this.speed=Math.random()*0.5+0.5;
+        this.sprite=sprites["cloud"];
+        this.update=function(){
+          this.x=this.x+this.speed;
+          if(this.x>=CANVAS_WIDTH+width/2)
+             this.active=false;
+
+        }
+        this.draw=function(){
+          this.sprite.draw(canvas, this.x, this.y,this.width,this.height);
+          //console.info("draw");
+        }
+      }
+
+     function startGame(level){
+             backhomeButton.sprite=sprites["backhome"];
+             gameLevel=level;           
+                music.currentTime=0;
+                music.play();
+         
+              //carsLeft=new number(CANVAS_WIDTH-150,30,30,"Cars Left: ","blue","carsLeft");
+              //timeLeft=new number(CANVAS_WIDTH-150,60,FPS*60,"Time Left: ","blue","timeLeft");
+              carsLeft.reset();
+              //carsLeft.number=30;
+              timeLeft.reset();
+             // timeLeft.number=30*FPS;
+             // timeLeft.color="blue";
+             // timeLeft.blink=false;
+              gameState="playing";
+              crashEffects=[];
+             
+
+                  roadSections.forEach(function(e){
+                 e.cars=[];
+               if(e.ifIntersection) 
+                  e.signals.forEach(function(s){
+                      s.setSignal("red",signalSprites["red"]);
+                  });
+              });
+                
+                username=$("#username")[0].value;
+                if(username=="")
+                   username="Guest";
+                   username=username.substring(0,10);
+              return;
+
+     }
+
+
+     function lessThan(a,b){
+      if(a["level2"]){
+        if(b["level2"]){
+           if(a["total"]<b["total"])
+             return true;
+        }
+        else
+          return true;
+      }
+      else{
+        if(!b["level2"]){
+          if(a["level1"]){
+            if(b["level1"]){
+              if(a["level1"]<b["level1"])
+                return true;
+            }
+            else
+                return true;
+          }
+        }
+      }
+
+       return false;
+     }
+
+     function copy(a,b){
+          a["name"]=b["name"];
+          a["level1"]=b["level1"];
+          a["level2"]=b["level2"];
+          a["total"]=b["total"];
+     }
+
+
+
+     function button(x,y,width,height,name){
+         //this.buttonName=name;
+        this.x=x;//button center x
+        this.y=y;//button center y
+        this.width=width;
+        this.height=height;
+        this.name=name;
+        this.sprite=sprites[name];
+
+        this.ifPressed=false;
+
+       /* this.mouseDown=function(x,y,rect){
+          if(x-rect.left>=this.x && x-rect.left<=this.x+this.width && y-rect.top>=this.y && y-rect.top<=this.y+this.height){
+            this.ifPressed=true;
+            gameState=
+          }
+        }*/
+       this.mouseUp=function(x,y,rect){
+         if(this.name=="start" && Math.abs(x-rect.left-this.x)+Math.abs(y-rect.top-this.y)<=this.width/2){
+             this.ifPressed=false;
+             
+             this.sprite=sprites[this.name];
+              startGame("level1");
+                 for(var i=0;i<gameRecord.length;i++){
+                if(gameRecord[i]["name"]==username)
+                   break;
+              }
+              if(i==gameRecord.length){
+                         gameRecord[i]={};
+                         gameRecord[i]["name"]=username;
+                        //gameRecord[i]["level1"]=(TOTALTIME-timeLeft.number)/FPS;
+                        //gameRecord[i]["level1"]=gameRecord[i]["level1"].toFixed(2);
+               }
+
+               localStorage.setItem("gameRecord",JSON.stringify(gameRecord));
+
+          }
+
+
+          if(x-rect.left>=this.x-this.width/2 && x-rect.left<=this.x+this.width/2 && y-rect.top>=this.y-this.height/2 && y-rect.top<=this.y+this.height/2)
+            if(this.name=="start"){
+          
+
+
+            }
+
+            else if(this.name=="guide" || this.name=="guideboard"){
+              guideDisplay=true;
+              this.sprite=sprites[this.name];
+
+            }
+
+            else if(this.name=="record" || this.name=="whiteboard"){
+              whiteDisplay=true;
+              this.sprite=sprites[this.name];
+
+              
+             for(var i=0; i<gameRecord.length;i++){
+                     var min={};
+                     var mindex=i;
+                     console.info(gameRecord.length);
+               for(var j=i; j<gameRecord.length;j++){
+                  if(lessThan(gameRecord[j],min)){
+                    min=gameRecord[j];
+                    mindex=j;
+                  }
+                }
+                
+                  var temp={};
+                 copy(temp,gameRecord[i]);
+                 copy(gameRecord[i],gameRecord[mindex]);
+                 copy(gameRecord[mindex],temp);
+               
+
+
+                   
+                 // gameRecord[j]=temp;
+               // gameRecord[i]=gameRecord[j];
+             }
+
+            }
+
+            else if(this.name=="continue"){
+              //gameState="playing";
+              startGame("level2");
+            }
+            /*else if (x-rect.left>=this.x-this.width/2 && x-rect.left<=this.x+this.width/2 && y-rect.top>=this.y-this.height/2 && y-rect.top<=this.y+this.height/2)
+            if(this.name=="instruction"){
+          
+
+
+            } */
+
+            else if(this.name=="backhome"){
+              if(ifSounds){
+                music.pause();
+              }
+              gameLevel="main";
+              roadSections.forEach(function(e){
+                 e.cars=[];
+               if(e.ifIntersection) 
+                  e.signals.forEach(function(s){
+                      s.setSignal("red",signalSprites["red"]);
+                  });
+              });
+              
+            }
+            else if(this.name=="refresh"){
+              roadSections.forEach(function(e){
+                 e.cars=[];
+                 if(e.ifIntersection) 
+                  e.signals.forEach(function(s){
+                      s.setSignal("red",signalSprites["red"]);
+                  });
+              });
+                carsLeft.reset();
+              //carsLeft.number=30;
+              timeLeft.reset();
+              //carsLeft.number=30;
+             // timeLeft.number=30*FPS;
+             // timeLeft.color="blue";
+             // timeLeft.blink=false;
+              gameState="playing";
+              crashEffects=[];
+              
+            }
+            else if(this.name=="pause" || this.name=="playing"){
+              if(gameState=="playing"){
+                 music.pause();
+                gameState="pause";
+                this.name="playing";
+                this.sprite=sprites["playing-pressed"];
+              }
+              else if(gameState=="pause"){
+                  
+                   music.play();
+                 gameState="playing";
+                 this.name="pause";
+                 this.sprite=sprites["pause-pressed"];
+               }
+              
+            }
+
+            else if(this.name=="nosounds" || this.name=="sounds"){
+              if(ifSounds){
+                 music.volume=0;
+                crash.volume=0;
+                carstart.volume=0;
+                carstart2.volume=0;
+                fire.volume=0;
+                ambulance.volume=0;
+                ifSounds=false;
+                this.name="sounds";
+                this.sprite=sprites["sounds-pressed"];
+              }
+              else{
+                  music.volume=1;
+                 crash.volume=1;
+                carstart.volume=1;
+                carstart2.volume=1;
+                 fire.volume=1;
+                ambulance.volume=1;
+                 ifSounds=true;
+                this.name="nosounds";
+                this.sprite=sprites["nosounds-pressed"];
+              }
+              
+            }
+        }
+        this.mouseMove=function(x,y,rect){
+
+          if(this.name=="start"){
+            if( Math.abs(x-rect.left-this.x)+Math.abs(y-rect.top-this.y)<=this.width/2){
+            
+              
+                 if(!this.ifPressed){
+                    click.currentTime=0;
+                    click.play();
+                this.sprite=sprites[this.name+"-pressed"];
+               this.ifPressed=true;
+             }
+             
+            }
+            else{
+               if(this.ifPressed)
+               this.sprite=sprites[this.name];
+               this.ifPressed=false;
+
+            }
+            return;
+
+          }
+
+
+          if(x-rect.left<this.x-this.width/2 || x-rect.left>this.x+this.width/2 || y-rect.top<this.y-this.height/2 || y-rect.top>this.y+this.height/2){
+             if(this.ifPressed){
+               this.sprite=sprites[this.name];
+               this.ifPressed=false;
+           }
+          }
+          else{
+            if(!this.ifPressed){
+                 click.currentTime=0;
+                click.play();
+               this.sprite=sprites[this.name+"-pressed"];
+               this.ifPressed=true;
+               console.info(this.name);
+             }
+           }
+        }
+
+        this.draw=function(){
+          this.sprite.draw(canvas, this.x-this.width/2, this.y-this.height/2,this.width,this.height);
+          //console.info("draw");
+        }
+        this.update=function(){
+         // if(this.ifPressed) 
+            
+          //else 
+            //this.sprite=Sprite("start-pressed");
+        }
+
+
+
+     }
+
+  /*           this.mouseMove=function(x,y,rect){
+
+          if(this.name=="instruction"){
+            if( Math.abs(x-rect.left-this.x)+Math.abs(y-rect.top-this.y)<=this.width/2){
+            
+              
+                 if(!this.ifPressed){
+                    click.currentTime=0;
+                    click.play();
+                this.sprite=sprites[this.name+"-pressed"];
+               this.ifPressed=true;
+             }
+             
+            }
+            else{
+               if(this.ifPressed)
+               this.sprite=sprites[this.name];
+               this.ifPressed=false;
+
+            }
+            return;
+
+          }
+
+
+          if(x-rect.left<this.x-this.width/2 || x-rect.left>this.x+this.width/2 || y-rect.top<this.y-this.height/2 || y-rect.top>this.y+this.height/2){
+             if(this.ifPressed){
+               this.sprite=sprites[this.name];
+               this.ifPressed=false;
+           }
+          }
+          else{
+            if(!this.ifPressed){
+                 click.currentTime=0;
+                click.play();
+               this.sprite=sprites[this.name+"-pressed"];
+               this.ifPressed=true;
+             }
+           }
+        }
+
+*/
+
+      function distance(a,b){
+            return (Math.abs(a.x-b.x)+Math.abs(a.y-b.y))/2;
+      }
+      
+      function signal(angle,x,y,sectionid,index){
+        this.sectionid=sectionid;
+        this.index=index;
+        this.angle=angle;
+        this.x=x;
+        this.y=y;
+        this.width=CARHEIGHT*1.8;
+        this.height=CARWIDTH;
+        this.yellowTime=1*FPS;
+        //this.lastState="green";
+        this.draw = function() {
+            
+            canvas.save();
+            canvas.translate(x+roadSections[sectionid].x,y+roadSections[sectionid].y);
+            canvas.rotate(this.angle*TO_RADIANS);
+            this.sprite.draw(canvas, -this.width/2, -this.height/2,this.width,this.height);
+            canvas.restore();
+          };
+
+        this.setSignal=function(state,sprite){
+          this.state=state;
+          this.sprite=sprite;
+          if(state=="green"){
+            roadSections[this.sectionid].entranceSection[this.index].stopSign=false;
+            this.lastState="green";
+          }
+          else if(state=="red"){
+            roadSections[this.sectionid].entranceSection[this.index].stopSign=true;
+            this.lastState="red";
+          }
+          else
+              this.yellowTime=0.5*FPS;
+        }
+
+        this.update=function(){
+          if(this.state=="yellow")
+            this.yellowTime--;
+          else
+             return;
+          if(this.yellowTime==0) {
+              //this.yellowTime=2*FPS;
+            if(this.lastState=="red"){
+              this.setSignal("green",signalSprites["green"]);
+              //this.lastState="green";
+            }
+            else {
+              this.setSignal("red",signalSprites["red"]);
+              //this.lastState="red";
+            }
+           }
+      
+
+      }
+    }
+
+
+
+
+
+       function roadSection(){
+          this.id=0;
+          this.cars=[];
+          this.adjacentSections=[];
+          this.x=0;
+          this.y=0;
+          this.width=ROADWIDTH;
+          this.height=ROADHEIGHT;
+          this.angle=0;
+
+          this.entranceX=0;
+          this.entranceY=0;
+
+          this.stopSign=false;
+          this.signals=[];
+          this.ifIntersection=false;
+
+
+          this.dealwithSignals=function(x,y,rect){
+                   self=this;
+                  this.signals.forEach(function(s){
+     
+
+            if(s.angle==0 || s.angle==-180){
+                 var ltCorner={x:s.x-s.width/2,y:s.y-s.height/2};
+                 var rbCorner={x:s.x+s.width/2,y:s.y+s.height/2};
+
+              
+             }
+            else{
+                var ltCorner={x:s.x-s.height/2,y:s.y-s.width/2};
+                 var rbCorner={x:s.x+s.height/2,y:s.y+s.width/2};
+
+            } 
+            //console.info("  "+y);
+            //console.info( ltCorner.y+roadSections[8].y+rect.top );
+            //console.info( rect.top);
+
+
+              if(x>=ltCorner.x+self.x+rect.left && x<rbCorner.x+self.x+rect.left
+                && y>=ltCorner.y+self.y+rect.top && y<rbCorner.y+self.y+rect.top)// click on a signal
+               {
+                  //console.info("h");
+                  if(s.state=="green" || s.state=="red")  s.setSignal("yellow",signalSprites["yellow"]);
+               }
+            });
+          }
+
+
+
+          //this.sprite=Sprite("road");
+
+          this.testCollide=function(){
+            for(var i=0;i<this.cars.length;i++){
+              for(var j=i+1;j<this.cars.length;j++)
+                if(this.cars[i].fromSection !=this.cars[j].fromSection  && this.cars[i].x && this.cars[j].x && (Math.abs(this.cars[i].angle-this.cars[j].angle)>=190 ||Math.abs(this.cars[i].angle-this.cars[j].angle)<=170)  && distance(this.cars[i],this.cars[j])< CARHEIGHT)//&& Math.abs(this.cars[i].x-this.cars[j].x)+Math.abs(this.cars[i].y-this.cars[j].y)<CARHEIGHT)  
+                {
+                     this.cars[i].active=false;
+                     this.cars[j].active=false;
+                    crashEffects.push(new crashEffect((this.cars[i].x+this.x)/2+(this.cars[j].x+this.x)/2,(this.cars[i].y+this.y)/2+(this.cars[j].y+this.y)/2,100));
+                     //crash.currentTime=0;
+                     
+                     crash.play();
+                     
+                }
+            }
+          }
+
+          this.update= function(){
+
+             this.signals.forEach(function(s){
+                 s.update();
+              });
+             if( (this.id==1 ||this.id==7) && Math.random() < 0.03 &&  (this.cars.length==0 || Math.abs(this.cars[this.cars.length-1].x-this.entranceX)
+                 +Math.abs(this.cars[this.cars.length-1].y-this.entranceY)>1.5*CARWIDTH)){
+                 //console.info("add");
+                  var newcar=car();
+                  var number=Math.random();
+                if(gameLevel=="level1"){
+                  if(number<0.1) number=0;
+                  else if(number<0.2) number=1;
+                  else if(number<0.3) number=2;
+                  else if(number<0.4) number=3;
+                  else if(number<0.5) number=4;
+                  else if(number<0.55) number=5;
+                  //else if(number<0.6) number=6;
+                  else if(number<0.65) number=8;
+                  else if(number<0.7) number=9;
+                  else if(number<0.75) number=10;
+                  else if(number<0.8) number=11;
+                  else if(number<0.9) number=12;
+                  else   number=13;
+                }
+                else if(gameLevel=="level2"){
+                  if(number<0.1) number=0;
+                   else if(number<0.2) number=1;
+                    else if(number<0.3) number=2;
+                    else if(number<0.4) number=3;
+                    else if(number<0.5) number=4;
+                  //else if(number<0.55) number=5;
+                  //else if(number<0.6) number=6;
+                  //else if(number<0.65) number=8;
+                  //else if(number<0.7) number=9;
+                  //else if(number<0.75) number=10;
+                  else if(number<0.6) number=14;
+                  else if(number<0.7) number=12;
+                  else if(number<0.8)  number=13;
+                  else if(number<0.9)  number=9;
+                  else  number=6;
+                }
+               
+
+                  //else if(number<0.7) number=14;
+
+                  //else  number=14;
+                 // else if(number<1) number=5;
+
+
+                  newcar.sprite=carsprites["car"+number];
+
+                  if(number==6){
+                   newcar.carType="amb";
+                   newcar.sprite=carsprites["car6b0"];
+                   ambulance.play();
+
+                  }
+                if(number==14){
+                   newcar.carType="fire";
+                   newcar.sprite=carsprites["car14b0"];
+                    fire.play();
+
+                 }
+
+                 // newcar.index=this.cars.length;
+                  newcar.angle=this.angle;
+                  newcar.sectionid=this.id;
+                  newcar.fromSection=this.id;
+                 /* if(this.id===1) newcar.angle=0;
+                  if(this.id===3) newcar.angle=-90;
+                  if(this.id===5) newcar.angle=-180;
+                  if(this.id===7) newcar.angle=-270;*/
+
+                  this.cars.push(newcar);
+                  newcar.x=this.entranceX;
+                  newcar.y=this.entranceY;
+                  //newcar.active=true;
+                  if(Math.random()<0.5) newcar.turnState="mid";
+                   else if(Math.random()<0.75) newcar.turnState="right";
+                  else newcar.turnState="left";
+
+                   newcar.turnsprite=sprites[newcar.turnState];
+             }
+
+             //if(this.id==8)
+              //console.info(this.cars);
+              //this.cars=this.cars.filter(function(e){
+
+                //return e.active;
+            //});
+              var newcars=[];
+              for(var i=0;i<this.cars.length;i++){
+                if(this.cars[i].active)
+                  newcars.push(this.cars[i]);
+              }
+              this.cars=newcars;
+
+              //if(this.id==8)
+              //console.info(this.cars);
+              //if(this.id!=8)
+              for(var i=0;i<=this.cars.length-1;i++){
+                this.cars[i].index=i;
+                //console.info();
+              }
+              
+          }
+
+          this.draw =function(){
+               //if(this.active)
+              this.sprite.draw(canvas, this.x, this.y,this.width,this.height);
+              this.signals.forEach(function(s){
+                 s.draw();
+              });
+          }
+
+        }
+
+       //initialize roadSections
+        roadSections=[];
+        for(var i=0;i<=8;i++){
+          var newsection=new roadSection();
+          newsection.id=i;
+         roadSections.push(newsection);
+
+         if(i==2 || i==3 || i==6 || i==7){
+          roadSections[i].width=ROADHEIGHT;
+          roadSections[i].height=ROADWIDTH;
+        }
+        if(i==8){
+           roadSections[i].width=ROADHEIGHT*2;
+           roadSections[i].height=ROADHEIGHT*2;
+         
+         }
+         
+      roadSections[i].sprite=sprites["s" +i];
+
+      }
+      roadSections[0].angle=-180;
+      roadSections[1].angle=0;
+      roadSections[2].angle=-270;
+      roadSections[3].angle=-90;
+      roadSections[4].angle=0;
+      roadSections[5].angle=-180;
+      roadSections[6].angle=-90;
+      roadSections[7].angle=-270;
+
+      roadSections[1].stopSign=true;
+
+     roadSections[3].stopSign=true;
+     roadSections[5].stopSign=true;
+    //roadSections[7].stopSign=true;
+     
+   
+
+      roadSections[0].x=0;
+      roadSections[0].y=ROADWIDTH;
+      roadSections[1].x=0;
+      roadSections[1].y=ROADWIDTH+ROADHEIGHT;
+      roadSections[2].x=ROADWIDTH;
+      roadSections[2].y=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[3].x=ROADWIDTH+ROADHEIGHT;
+      roadSections[3].y=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[4].x=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[4].y=ROADWIDTH+ROADHEIGHT;
+      roadSections[5].x=ROADWIDTH+ROADHEIGHT*2;
+      roadSections[5].y=ROADWIDTH;
+      roadSections[6].x=ROADWIDTH+ROADHEIGHT;
+      roadSections[6].y=0;
+      roadSections[7].x=ROADWIDTH;
+      roadSections[7].y=0;
+      roadSections[8].x=ROADWIDTH;
+      roadSections[8].y=ROADWIDTH;
+
+
+      roadSections[0].entranceX=roadSections[0].width;
+      roadSections[0].entranceY=roadSections[0].height/2;
+      roadSections[1].entranceX=0;//-CARWIDTH/2;
+      roadSections[1].entranceY=roadSections[1].height/2;
+
+      roadSections[4].entranceX=0;
+      roadSections[4].entranceY=roadSections[4].height/2;
+      roadSections[5].entranceX=roadSections[5].width;//+CARWIDTH/2;
+      roadSections[5].entranceY=roadSections[5].height/2;
+
+      roadSections[2].entranceX=roadSections[2].width/2;
+      roadSections[2].entranceY=0;
+      roadSections[3].entranceX=roadSections[3].width/2;
+      roadSections[3].entranceY=roadSections[3].height;//+CARWIDTH/2;
+
+      roadSections[6].entranceX=roadSections[6].width/2;
+      roadSections[6].entranceY=roadSections[6].height;
+      roadSections[7].entranceX=roadSections[7].width/2;
+      roadSections[7].entranceY=0;//-CARWIDTH/2;
+
+
+      roadSections[1].exitX=roadSections[1].width;
+      roadSections[1].exitY=roadSections[1].height/2;
+      roadSections[3].exitX=roadSections[3].width/2;
+      roadSections[3].exitY=0;
+      roadSections[5].exitX=0;
+      roadSections[5].exitY=roadSections[5].height/2;
+      roadSections[7].exitX=roadSections[7].width/2;;
+      roadSections[7].exitY=roadSections[7].height;
+
+      roadSections[8].entrance=[];
+      roadSections[8].entrance[1]={x:0,y:ROADHEIGHT*1.5};
+      roadSections[8].entrance[3]={x:ROADHEIGHT*1.5,y:ROADHEIGHT*2};
+      roadSections[8].entrance[5]={x:ROADHEIGHT*2,y:ROADHEIGHT*0.5};
+      roadSections[8].entrance[7]={x:ROADHEIGHT*0.5,y:0};
+
+      roadSections[8].entranceSection=[];
+      roadSections[8].entranceSection[0]=roadSections[1];
+      roadSections[8].entranceSection[1]=roadSections[3];
+      roadSections[8].entranceSection[2]=roadSections[5];
+      roadSections[8].entranceSection[3]=roadSections[7];
+
+
+
+      roadSections[1].adjacentSections[2]=roadSections[8];
+      roadSections[3].adjacentSections[3]=roadSections[8];
+      roadSections[5].adjacentSections[0]=roadSections[8];
+      roadSections[7].adjacentSections[1]=roadSections[8];
+
+      roadSections[8].adjacentSections[0]=roadSections[0];
+      roadSections[8].adjacentSections[1]=roadSections[2];
+      roadSections[8].adjacentSections[2]=roadSections[4];
+      roadSections[8].adjacentSections[3]=roadSections[6];
+
+
+
+  //initialize signals 
+     //roadSections[8].signals=[];
+  
+    roadSections[8].ifIntersection=true;
+
+    //var signal1=new signal(-90,0,roadSections[8].height/2,8,0);
+
+    roadSections[8].signals[0]=new signal(-90,0,roadSections[8].height/2,8,0);
+    //roadSections[8].signals[1]=new signal(-180,roadSections[8].width/2,roadSections[8].height,8,1);
+    //roadSections[8].signals[2]=new signal(-270,roadSections[8].width,roadSections[8].height/2,8,2);
+    roadSections[8].signals[3]=new signal(0,roadSections[8].width/2,0,8,3);
+
+    roadSections[8].signals[0].setSignal("red",signalSprites["red"]);
+    //roadSections[8].signals[1].setSignal("red",signalSprites["red"]);
+    //roadSections[8].signals[2].setSignal("red",signalSprites["red"]);
+    roadSections[8].signals[3].setSignal("red",signalSprites["red"]); 
+        //cars = [];
+        
+        function car(I) {
+          
+          I = I || {};
+          I.fromSection=0;
+          I.index=0;      
+          I.active = true;
+          I.age = 0;
+          I.angle=0;  
+          I.state="driving";//driving,braking,waiting,starting
+          I.carType="normal";
+          I.waitTime=0;
+          //I.turnState="mid";
+
+          //I.color = "#A2B";
+        
+          I.x = 0;
+          I.y = 0;
+          I.Velocity = VELOCITY;
+
+          //I.yVelocity = 2;
+        
+          I.width = CARWIDTH;
+          I.height = CARHEIGHT;
+        
+          I.inBounds = function(section) {
+           
+            if(I.x<0)
+             return 0;
+            if(I.x>section.width) 
+              return 2;
+            if(I.y<0)
+             return 3;
+            if(I.y>section.height) 
+              return 1;
+            //default: in the section
+            return 4;
+
+          };
+        
+        //  I.sprite = Sprite("car");
+        
+          I.draw = function(section) {
+            //transfer to global coordinates
+
+            x=I.x+section.x;
+            y=I.y+section.y;
+            if(I.carType=="amb" ){
+              if(timeLeft.number % 6<=2)
+                 I.sprite=carsprites["car6b0"];
+              else
+                I.sprite=carsprites["car6b1"];
+            }
+
+            if( I.carType=="fire"){
+                if(timeLeft.number % 6<=2)
+                 I.sprite=carsprites["car14b0"];
+              else
+                I.sprite=carsprites["car14b1"];
+            }
+            
+            canvas.save();
+            canvas.translate(x,y);
+            canvas.rotate(I.angle*TO_RADIANS);
+            //if(I.active)
+            I.sprite.draw(canvas, -I.width/2, -I.height/2,I.width,I.height);
+            if(I.turnState!="mid")
+              I.turnsprite.draw(canvas, -I.height*0.35, -I.height*0.35,I.height*0.7,I.height*0.7);
+            //console.info(I.x);
+            canvas.restore();
+          };
+
+          I.drive= function(section){
+            I.x += I.Velocity*Math.cos(I.angle*TO_RADIANS);
+            I.y += I.Velocity*Math.sin(I.angle*TO_RADIANS);
+            if(section.id==1){
+              //console.info(I.x);
+              //console.info(I.y);
+            }
+           // for(var i=0;i<section.cars.length;i++){
+             // if(i==I.index) continue;
+              //if(Math.abs(section.cars[i].x-I.x)+Math.abs(section.cars[i].y-I.y)<I.width+10 ){
+              //  console.info("here");
+              if(I.index>=1){
+              //console.info(section.cars[I.index-1]);
+              //console.info(section.id);
+              }
+              if(!section.ifIntersection &&  I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)<I.width+15){
+                 I.state="braking";
+                
+              }
+ 
+            if(!section.ifIntersection && I. index==0 && Math.abs(section.exitX-I.x)+Math.abs(section.exitY-I.y)<I.width && section.stopSign)
+                 I.state="braking";
+          }
+
+
+          I.brake= function(section){
+            I.Velocity-=ACCELERATION;
+            if(I.Velocity<=0){
+              I.Velocity=0;
+              I.state="waiting";
+              return;
+            }
+            var ifstart=true;
+            I.x += I.Velocity*Math.cos(I.angle*TO_RADIANS);
+            I.y += I.Velocity*Math.sin(I.angle*TO_RADIANS);
+           // for(var i=0;i<section.cars.length;i++){
+              //if(i==I.index) continue;
+              if(!section.ifIntersection &&I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)>I.width+15 || section.ifIntersection || !section.ifIntersection && I.index==0 && Math.abs(section.exitX-I.x)+Math.abs(section.exitY-I.y)>I.width+15)
+              
+                  I.state="starting";
+                  //return;
+            
+            
+             if(!section.ifIntersection && I.index==0  && !section.stopSign)
+                 I.state="starting";
+
+          }
+
+            I.start= function(section){
+            I.Velocity+=ACCELERATION;
+            //console.info(I.Velocity);
+            if(I.Velocity>=VELOCITY){
+              I.Velocity=VELOCITY;
+              I.state="driving";
+            }
+            var ifbrake=false;
+            I.x += I.Velocity*Math.cos(I.angle*TO_RADIANS);
+            I.y += I.Velocity*Math.sin(I.angle*TO_RADIANS);
+            //for(var i=0;i<section.cars.length;i++){
+              //if(i==I.index) continue;
+              //if(Math.abs(section.cars[i].x-I.x)+Math.abs(section.cars[i].y-I.y)<I.width+10)
+              if(!section.ifIntersection && I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)<I.width+15)
+                I.state="braking";
+
+            if(!section.ifIntersection && I.index==0 && Math.abs(section.exitX-I.x)+Math.abs(section.exitY-I.y)<I.width+15 && section.stopSign)
+                 I.state="braking";
+          }
+
+          I.wait= function(section){
+            if(I.carType=="amb" || I.carType=="fire"){
+              I.waitTime++;
+              if(I.waitTime==3*FPS)
+                 gameState="lose";
+            }
+            //var ifstart=true;
+             //for(var i=0;i<section.cars.length;i++){
+             // if(i==I.index) continue;
+             // if(Math.abs(section.cars[i].x-I.x)+Math.abs(section.cars[i].y-I.y)<I.width+10)
+             if(!section.ifIntersection && I.index>=1 && section.cars[I.index-1].active && Math.abs(section.cars[I.index-1].x-I.x)+Math.abs(section.cars[I.index-1].y-I.y)>I.width+15   || !section.ifIntersection && I.index==0 && Math.abs(section.exitX-I.x)+Math.abs(section.exitY-I.y)>I.width+15)
+                I.state="starting";
+             I.age++;
+
+
+           if(!section.ifIntersection && I.index==0  && !section.stopSign){
+                 I.state="starting";
+                 if(Math.random()<0.5){
+                  carstart.currentTime=0;
+                  carstart2.pause();
+                  carstart.play();
+             }
+                else{
+                  carstart2.currentTime=0;
+                  carstart.pause();
+                 carstart2.play();
+                }
+
+               }
+
+          }
+
+          I.turn=function(section){
+            if(I.turnState=="left")
+             I.angle-=I.Velocity/ROADHEIGHT/1.5*180/Math.PI;
+            else if(I.turnState=="right")
+             I.angle+=I.Velocity/ROADHEIGHT/0.5*180/Math.PI;
+          }
+        
+          I.update = function(section) {
+
+            //console.info(I.Velocity);
+             //console.info(I);
+            switch(I.state){
+              case "driving": this.drive(section);
+                              break;
+              case "waiting": this.wait(section);
+                              break;
+              case "starting":this.start(section);
+                              break;
+              case "braking": this.brake(section);
+                              break;
+            }  
+            if(section.ifIntersection)
+              this.turn(section);
+            if(this.age>10*FPS){
+              // this.explode();
+              // return;
+
+             }
+
+            var whichSection=I.inBounds(section);
+            //console.info(whichSection);
+            
+
+            if(whichSection==4) {
+
+               //console.info(section.id);
+               return;
+             }
+            //still in the section
+
+            else if(!section.adjacentSections[whichSection]){
+            //out of map
+            //console.info(section.id);
+               I.active = false;
+               //console.info("   "+section.id);
+               //console.info(whichSection);
+             }
+            else{//in another section
+              //console.info(section.adjacentSections[whichSection].id);
+              //console.info("change");
+             // var newcar=new car();
+              //newcar.active=false;
+
+              section.cars[section.cars.indexOf(I)]={active:false};//here missing 'cars'
+
+             
+               //console.info(section.);
+             
+              if(section.adjacentSections[whichSection].ifIntersection!=true){//entering sections other than intersection
+               I.x=section.adjacentSections[whichSection].entranceX;
+               I.y=section.adjacentSections[whichSection].entranceY;
+               I.angle=section.adjacentSections[whichSection].angle;
+               carsLeft.number--;
+               if(carsLeft.number<0) carsLeft.number=0;
+               //console.info(whichSection);
+              // console.info(section.adjacentSections[whichSection]).id;
+                //console.info("change");
+              // if(I.angle<=90+ERR && I.angle>=90-ERR)  I.angle=90;
+               //else if(I.angle<=180+ERR && I.angle>=180-ERR)  I.angle=180;
+               //else if(I.angle<=270+ERR && I.angle>=270-ERR)  I.angle=270;
+              }
+              else{//enter intersection
+                //console.info(" "+I.sectionid+" "+section.id);
+                //console.info(section.adjacentSections[whichSection].cars.length);
+                I.x=section.adjacentSections[whichSection].entrance[section.id].x;
+                I.y=section.adjacentSections[whichSection].entrance[section.id].y;
+                //I.active=false;
+                // section.adjacentSections[whichSection].cars.push(I);      
+
+              }
+            // I.index=section.adjacentSections[whichSection].cars.length-1;
+
+             I.sectionid=section.adjacentSections[whichSection].id;
+             section.adjacentSections[whichSection].cars.push(I);
+             //I.active=true;
+           
+
+              //console.info(section.adjacentSections[whichSection].id);
+             //console.info(I.active);
+             //I.state="driving";
+
+            }
+
+
+          };
+        
+          I.explode = function() {
+            //Sound.play("explosion");
+            
+            this.active = false;
+            // Extra Credit: Add an explosion graphic
+          };
+        
+          return I;
+        };
+        
+
+
+        var canvasElement = $("<canvas width='" + CANVAS_WIDTH + 
+          "' height='" + CANVAS_HEIGHT + "'></canvas");
+        var canvas = canvasElement.get(0).getContext("2d");
+        canvasElement.appendTo('#canvasdiv');
+
+        $("body")[0].onmousemove=function(event){
+           var rect=canvasElement[0].getBoundingClientRect();
+
+          var x=event.clientX;
+          var y=event.clientY;
+          if(gameLevel=="main" && !guideDisplay && !whiteDisplay){
+           startButton.mouseMove(x,y,rect);
+           recordButton.mouseMove(x,y,rect);
+           guideButton.mouseMove(x,y,rect);
+          }
+          else if(gameLevel=="level1" || gameLevel=="level2"){
+            backhomeButton.mouseMove(x,y,rect);
+            refreshButton.mouseMove(x,y,rect);
+            pauseButton.mouseMove(x,y,rect);
+            soundButton.mouseMove(x,y,rect);
+            if(gameState=="win" && gameLevel=="level1"){
+              continueButton.mouseMove(x,y,rect);
+            }
+          }
+        }
+
+      $("#username").bind("keyup", "return", function() { 
+          startGame("level1");
+          for(var i=0;i<gameRecord.length;i++){
+                if(gameRecord[i]["name"]==username)
+                   break;
+              }
+              if(i==gameRecord.length){
+                         gameRecord[i]={};
+                         gameRecord[i]["name"]=username;
+                        //gameRecord[i]["level1"]=(TOTALTIME-timeLeft.number)/FPS;
+                        //gameRecord[i]["level1"]=gameRecord[i]["level1"].toFixed(2);
+               }
+
+               localStorage.setItem("gameRecord",JSON.stringify(gameRecord));
+       });
+
+
+      
+       canvasElement[0].onmouseup=function(event){
+          var rect=canvasElement[0].getBoundingClientRect();
+
+          var x=event.clientX;
+          var y=event.clientY;
+          if(gameLevel=="main"){
+         
+            if(whiteDisplay){
+               whiteDisplay=false;
+               whiteboard.mouseUp(x,y,rect);
+            }
+            else if(guideDisplay){
+              guideDisplay=false;
+              guideboard.mouseUp(x,y,rect);
+             
+
+            }
+            else {
+            startButton.mouseUp(x,y,rect);
+            guideButton.mouseUp(x,y,rect);
+            recordButton.mouseUp(x,y,rect);
+            //guideboard.mouseUp(x,y,rect);
+            }
+          }//end main
+
+         else if(gameLevel=="level1" || gameLevel=="level2"){
+         
+          //var left=rect.left+pageXOffset;
+          //var top=rect.top+pageYOffset;
+
+          backhomeButton.mouseUp(x,y,rect);
+           refreshButton.mouseUp(x,y,rect);
+           pauseButton.mouseUp(x,y,rect);
+           soundButton.mouseUp(x,y,rect);
+           if(gameState=="playing")
+           roadSections.forEach(function(section){
+              if(section.ifIntersection)
+                  section.dealwithSignals(x,y,rect);
+           });
+          if(gameState=="win" && gameLevel=="level1"){
+              continueButton.mouseUp(x,y,rect);
+            }
+
+    
+          }//end level1
+        }
+        
+      
+        
+
+
+          function draw() {
+          canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          //mapSprite.draw(canvas, 0, 0,CANVAS_WIDTH, CANVAS_HEIGHT);
+         // canvas.fillStyle = 'green';
+          //canvas.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          if(gameLevel=="level1")
+             gameBackgroundSprite.draw(canvas,0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+          else
+             gameBackgroundSprite2.draw(canvas,0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+          for(var i=0;i<=8;i++){
+            roadSections[i].draw();
+          }
+
+          for(var i=0;i<=8;i++){
+            
+            roadSections[i].cars.forEach(function(car){
+                car.draw(roadSections[i]);
+            });
+
+            
+          }
+             crashEffects.forEach(function(c){
+              if(c.active)
+               c.draw();
+          });
+
+           clouds.forEach(function(cloud){
+
+           cloud.draw();
+          });
+
+
+
+        }
+       var cloudCount=0;
+
+        function update() {
+          
+          for(var k=0;k<=8;k++){
+
+            roadSections[k].cars.forEach(function(car){
+                car.update(roadSections[k]);
+            });
+            
+          
+          }
+          roadSections[8].testCollide();
+
+          for(var k=0;k<=8;k++){
+              roadSections[k].update();
+          }  
+
+          clouds.forEach(function(cloud){
+            cloud.update();
+          });  
+          // count=(count+1)%10;
+          var r= Math.random();
+          if(cloudCount<FPS*8)
+             cloudCount++;
+          if(r<0.01 && cloudCount==FPS*8){
+            cloudCount=0;
+            var rand=Math.random(); 
+            var rand2=Math.random(); 
+            clouds.push(new cloud(CANVAS_HEIGHT*rand,200*rand2<100?100:250*rand2));
+          }
+          var newclouds=[];
+          clouds.forEach(function(cloud){
+            if(cloud.active)
+               newclouds.push(cloud);
+          });
+          clouds=newclouds;
+
+          crashEffects.forEach(function(crash){
+            crash.update();
+          });
+          //console.info(roadSections[8].cars);
+        
+          //handleCollisions();   
+        }
+          var loadingcount=0;
+          var loadingBarLength=360;
+          var loading=0;
+          setInterval(function() {
+            $("#username").css("display","none");
+            if(gameLevel=="loading"){
+               if(music.readyState>=2) 
+                 resources["sounds"]=true;
+               canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+               canvas.fillStyle="#5a9583";
+               canvas.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+                canvas.save();
+                canvas.font="Bold 50px 'Avant Garde'";
+               canvas.textAlign="left";
+               canvas.fillStyle="#f0cd29";
+                if(loadingcount<10)
+                  canvas.fillText("Loading.",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+                else if(loadingcount<20)
+                  canvas.fillText("Loading..",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+                else if(loadingcount<30)
+                  canvas.fillText("Loading...",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+                else
+                canvas.fillText("Loading....",CANVAS_WIDTH/2-120,CANVAS_HEIGHT/2-50);
+               canvas.restore();
+               loadingcount=(loadingcount+1)%40;
+              canvas.fillStyle="#a7ddf9";
+              canvas.fillRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength*loading/100,50);
+              canvas.lineWidth=0.5;
+              canvas.strokeRect(CANVAS_WIDTH/2-180,CANVAS_HEIGHT/2+20,loadingBarLength,50);
+              if(loading==20 && !resources["sounds"])
+                 loading=20;
+              else if(loading==40 && !resources["cars"])
+                 loading=40;
+              else if(loading==60 && !resources["menubackground"])
+                loading=60;
+              else if(loading==80 && !resources["gamebackground"])
+                loading=80;
+              else if(loading==100)
+                 gameLevel="main";
+               else
+                  loading++;
+            }
+
+
+            else if(gameLevel=="main"){
+              if(!guideDisplay && !whiteDisplay)
+               $("#username").css("display","inline");
+                canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                //canvas.fillStyle = 'green';
+                //canvas.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                menuBackgroundSprite.draw(canvas,0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+                startButton.update();
+                startButton.draw();
+                recordButton.update();
+                recordButton.draw();
+                guideButton.update();
+                guideButton.draw();
+                if(guideDisplay)
+                  guideboard.draw();
+                if(whiteDisplay){
+                  whiteboard.draw();
+
+                   
+                  var message=new textItem(145,200,"Name"+EMPTYSTRING.substring(0,EMPTYSTRING.length-4)+"Level 1"+EMPTYSTRING.substring(0,EMPTYSTRING.length-7)+"Level 2"+EMPTYSTRING.substring(0,EMPTYSTRING.length-7)+"Total"+EMPTYSTRING.substring(0,EMPTYSTRING.length-6),"#fd624e");
+                     message.draw();
+
+                for(var i=0;i<Math.min(10,gameRecord.length);i++){
+                   var message=new textItem(145,220+i*20,gameRecord[i]["name"]+EMPTYSTRING.substring(0,EMPTYSTRING.length-gameRecord[i]["name"].length)+(gameRecord[i]["level1"] || "X")+EMPTYSTRING.substring(0,EMPTYSTRING.length-(gameRecord[i]["level1"] || "X").length)+(gameRecord[i]["level2"] || "X")+EMPTYSTRING.substring(0,EMPTYSTRING.length-(gameRecord[i]["level2"] || "X").length)+(gameRecord[i]["total"] || "X")+EMPTYSTRING.substring(0,EMPTYSTRING.length-(gameRecord[i]["total"] || "X").length),"blue");
+
+                     message.draw();
+                  }
+                }
+
+
+            }
+            else if(gameLevel=="level1"){
+
+               if(gameState=="playing") {
+               
+               update();
+                
+                timeLeft.update();
+
+                if(crashEffects.length>=1 && crashEffects[crashEffects.length-1].counter>=FPS*0.6)
+                  gameState="lose";
+               
+               else if(timeLeft.number==0) gameState="lose";
+               else if(carsLeft.number==0) {
+                   gameState="win";
+                   for(var i=0;i<gameRecord.length;i++){
+                      if(gameRecord[i]["name"]==username){
+                           if(!gameRecord[i]["level1"] || gameRecord[i]["level1"]>(TOTALTIME-timeLeft.number)/FPS){
+                           gameRecord[i]["level1"]=(TOTALTIME-timeLeft.number)/FPS;
+                           gameRecord[i]["level1"]=gameRecord[i]["level1"].toFixed(2);}
+                           break;
+                      }
+                    }
+                   if(i==gameRecord.length){
+                         gameRecord[i]={};
+                         gameRecord[i]["name"]=username;
+                        gameRecord[i]["level1"]=(TOTALTIME-timeLeft.number)/FPS;
+                        gameRecord[i]["level1"]=gameRecord[i]["level1"].toFixed(2);
+                      }
+                    localStorage.setItem("gameRecord",JSON.stringify(gameRecord));
+                   
+                  }
+                draw();
+             }
+            
+              
+               //backhome.update();
+             
+               
+
+             else if(gameState=="win" || gameState=="lose"){
+               draw();
+               canvas.save();
+               canvas.fillStyle ="#cccccc";
+               canvas.globalAlpha=0.7;
+               canvas.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+               canvas.restore();
+
+               canvas.save();
+               canvas.font="Bold 90px 'Avant Garde'";
+               canvas.textAlign="left";
+               canvas.fillStyle="#d93d1f";
+               if(gameState=="lose")
+                canvas.fillText("Level Failed!",CANVAS_WIDTH/2-235,CANVAS_HEIGHT/2-25);
+               else if(gameState=="win")
+                canvas.fillText("Level Complete!",CANVAS_WIDTH/2-310,CANVAS_HEIGHT/2-25);
+               canvas.restore();
+               timeLeft.blink=false;
+
+              if(gameState=="win")
+               continueButton.draw();
+
+             
+           }
+         
+         else if(gameState=="pause") { 
+          timeLeft.blink=false;
+           draw();
+         }
+            
+
+             backhomeButton.draw();
+             refreshButton.draw();
+             pauseButton.draw();
+             soundButton.draw();
+               carsLeft.draw();
+               timeLeft.draw();
+
+                  canvas.save();
+           canvas.font="Bold 20px Georgia";
+           canvas.textAlign="left";
+           canvas.fillStyle="#085fd5";
+              canvas.fillText("Welcome "+username +"!",CANVAS_WIDTH-650,30);
+              canvas.fillText(gameLevel,CANVAS_WIDTH-650,60);
+              canvas.restore();
+
+
+             }
+
+
+
+             else if(gameLevel=="level2"){
+
+               if(gameState=="playing") {
+               
+               update();
+                
+                timeLeft.update();
+
+                if(crashEffects.length>=1 && crashEffects[crashEffects.length-1].counter>=FPS*0.6){
+                  gameState="lose";
+                    ambulance.pause();
+                   fire.pause();
+                }
+               
+               else if(timeLeft.number==0){
+                gameState="lose";
+                  ambulance.pause();
+                   fire.pause();
+              }
+               else if(carsLeft.number==0) {
+                   gameState="win";
+                   ambulance.pause();
+                   fire.pause();
+                   for(var i=0;i<gameRecord.length;i++){
+                      if(gameRecord[i]["name"]==username){
+                           if(!gameRecord[i]["level2"] || gameRecord[i]["level2"]>(TOTALTIME-timeLeft.number)/FPS){
+                           gameRecord[i]["level2"]=(TOTALTIME-timeLeft.number)/FPS;
+                           gameRecord[i]["level2"]=gameRecord[i]["level2"].toFixed(2);
+                           gameRecord[i]["total"]=(parseFloat(gameRecord[i]["level1"])+parseFloat(gameRecord[i]["level2"])).toFixed(2);}
+                           break;
+                      }
+                    }
+                    localStorage.setItem("gameRecord",JSON.stringify(gameRecord));
+                  /* if(i==gameRecord.length){
+                        gameRecord[i]["level2"]=(TOTALTIME-timeLeft.number)/FPS;
+                        gameRecord[i]["level2"]=gameRecord[i][username].toFixed(2);}*/
+              }
+                draw();
+             }
+            
+              
+               //backhome.update();
+             
+               
+
+             else if(gameState=="win" || gameState=="lose"){
+               draw();
+               canvas.save();
+               canvas.fillStyle ="#cccccc";
+               canvas.globalAlpha=0.7;
+               canvas.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+               canvas.restore();
+
+               canvas.save();
+               canvas.font="Bold 110px 'Avant Garde'";
+               canvas.textAlign="left";
+               canvas.fillStyle="#d93d1f";
+               if(gameState=="lose")
+                canvas.fillText("Level Failed",CANVAS_WIDTH/2-290,CANVAS_HEIGHT/2-25);
+               else if(gameState=="win")
+                canvas.fillText("You Win!!",CANVAS_WIDTH/2-250,CANVAS_HEIGHT/2-25);
+               canvas.restore();
+               timeLeft.blink=false;
+
+            
+
+             
+           }
+         
+         else if(gameState=="pause") { 
+          timeLeft.blink=false;
+           draw();
+         }
+            
+
+             backhomeButton.draw();
+             refreshButton.draw();
+             pauseButton.draw();
+             soundButton.draw();
+               carsLeft.draw();
+               timeLeft.draw();
+
+                  canvas.save();
+           canvas.font="Bold 20px Georgia";
+           canvas.textAlign="left";
+           canvas.fillStyle="#085fd5";
+              canvas.fillText("Welcome: "+username,CANVAS_WIDTH-650,30);
+              canvas.fillText(gameLevel,CANVAS_WIDTH-650,60);
+              canvas.restore();
+
+
+             }
+        }, 1000/FPS);
+    </script>
+  </body>
+</html>
