@@ -29,6 +29,14 @@ This work also leads to the paper "Visual Analytics with Unparalleled Variety Sc
 </li>
 <a href=http://cse.unl.edu/~ypan/map11.html  target="_blank">	<img src="images/hstm.png" width="640" height="410"/></a>
 
+	<li><a href="http://ec2-54-201-121-33.us-west-2.compute.amazonaws.com:5001/tank2.html" target="_blank"><strong>A tank shooting game</strong></a> A tank shooting game implemented using javascript/HTML5.All datas between browsers make use of RTCDataChannel(direct P2P, not through server). All animations are drawn on HTML canvas, no extra framework/engine used.Use http to signal between client and server.Server is implemented using node.js.Have several technics to sync the state between two clients,like,the states of tanks,shots.Develop my own algorithm for collision detection, which is key points bump detection.This algorithm is suitable for rectangle collision detection.</li>
+	<iframe width="640" height="410" src="https://www.youtube.com/embed/rjyXL0V0d8E" frameborder="0" allowfullscreen></iframe>
+	<a href="http://ec2-54-201-121-33.us-west-2.compute.amazonaws.com:5001/tank2.html" target="_blank"><img src="images/game.png" width="640" height="410"/></a>
+	<br>
+
+	<li><a href="http://webcompile-ypan16.rhcloud.com/OJ/main.html"><strong>A web Java/C++ compilation system</strong></a>A Web Compilation and Execution system for Java and C++. The main technical points are jquery AJAX for retrieving the compilation/execution results;using bootstrap for webpage layout; creating a new process to call compiler and java virtual machine; reading error message and output from this process; user separation(different user must have separate source and executable file)</li>
+        <a href="http://webcompile-ypan16.rhcloud.com/OJ/main.html"><img src="images/compiler.png" width="640" height="410"/></a>
+	<br>
 
 
  <li><a href=http://impanyu.github.io/crazytraffic/index6.html target="_blank"><strong>A traffic game</strong></a>This project is a two-episode game in which the player has to control the signal light to let the traffic pass through the intersection. The game demonstrates how to use plain javascript/jquery to build a fancy game without the use of a game framework. A bunch of asynchronous event is leveraged for UI control and the loading process. OOP is adopted. Also some popular javascript techniques such as local storage is used. This game can be considered as a SPA(Single Page Application) which is cross-platform due to the attribute of web apps. 
@@ -47,10 +55,6 @@ If the user does not do anything in the room for more than 15 secs, he will be s
 	<a href=http://ec2-54-201-121-33.us-west-2.compute.amazonaws.com:3000 target="_blank">	<img src="images/chatroom.png" width="640" height="410"/></a>
 
         <br>
-	<li><a href="http://ec2-54-201-121-33.us-west-2.compute.amazonaws.com:5001/tank2.html" target="_blank"><strong>A tank shooting game</strong></a> A tank shooting game implemented using javascript/HTML5.All datas between browsers make use of RTCDataChannel(direct P2P, not through server). All animations are drawn on HTML canvas, no extra framework/engine used.Use http to signal between client and server.Server is implemented using node.js.Have several technics to sync the state between two clients,like,the states of tanks,shots.Develop my own algorithm for collision detection, which is key points bump detection.This algorithm is suitable for rectangle collision detection.</li>
-	<iframe width="640" height="410" src="https://www.youtube.com/embed/rjyXL0V0d8E" frameborder="0" allowfullscreen></iframe>
-	<a href="http://ec2-54-201-121-33.us-west-2.compute.amazonaws.com:5001/tank2.html" target="_blank"><img src="images/game.png" width="640" height="410"/></a>
-	<br>
 	<li><a href="http://impanyu.github.io/myVideoPlayer/"><strong>A web video player</strong></a>This project implements a youtube like web video player . All components are implemented using plain Javascript or JQuery. Playlist is read from an json file. All the watched video progress are stored using browser's localstorage mechanism, so that the browser can reseek to its saved progress if the page is refreshed. There is also a separate progress bar indicating the buffered video.</li>
 	<a href="http://impanyu.github.io/myVideoPlayer/"><img src="images/video.png" width="640" height="410"/></a>
 	<br>
@@ -60,9 +64,7 @@ If the user does not do anything in the room for more than 15 secs, he will be s
 	<li><a href="http://employee-ypan16.rhcloud.com/" target="_blank"><strong>A Employee management system</strong></a>A employee management website using JSP/JSTL and MVC pattern. Main technical points includes resource injection, EJB as Data Access Object(DAO).  Username/password: admin/admin, or user/user.</li>
          <a href="http://employee-ypan16.rhcloud.com/" target="_blank"><img src="images/employee.png" width="640" height="410"/></a>
 	<br>
-	<li><a href="http://webcompile-ypan16.rhcloud.com/OJ/main.html"><strong>A web Java/C++ compilation system</strong></a>A Web Compilation and Execution system for Java and C++. The main technical points are jquery AJAX for retrieving the compilation/execution results;using bootstrap for webpage layout; creating a new process to call compiler and java virtual machine; reading error message and output from this process; user separation(different user must have separate source and executable file)</li>
-        <a href="http://webcompile-ypan16.rhcloud.com/OJ/main.html"><img src="images/compiler.png" width="640" height="410"/></a>
-	<br>
+
 	<li><a href="http://myweb-impanyu.rhcloud.com/WebServiceClientProject/" target="_blank"><strong>A SOAP webservice demonstration site</strong></a><a style="line-height: 1.5;" href="http://libertyville.rice.iit.edu/ypan16/final/index.html" target="_blank"></a>A site calling five webservices(SOAP) which in turn retrieve data in a MySQL database.This project can be divided into two parts: one is the WebServiceClient and the other is the WebService itself. These two parts communicate through SOAP webservice framework.WebServiceClient use WSDL file to establish webservice proxy, and it adopts a MVC structure, and uses JDBC to retrieve information from MySQL database. Every object which need to be transfered through the network were serialized into XML and capsulated in SOAP. For java.sql.Date object, I write an adapter to change it from(to) a String object.</li>
 	<a href="http://myweb-impanyu.rhcloud.com/WebServiceClientProject/" target="_blank"><img src="images/webservice.png" width="640" height="410"/></a>
 	<br>
